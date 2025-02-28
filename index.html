@@ -68,11 +68,13 @@
         <div class="planet-info">
             <h2>Dia Planetário: <span id="dia-planetario">...</span></h2>
             <h2>Hora Planetária Atual: <span id="planet-icon">🔆</span> <span id="hora-planetaria">...</span></h2>
-        </div>
+                    </div>
         
         <button class="button" onclick="getLocation()">Detectar Localização</button>
         <p id="location-status">Localização não detectada.</p>
         <p id="city-name">Cidade não detectada.</p>
+        <p>Nascer do Sol: <span id="sunrise-time">--:--</span></p>
+        <p>Pôr do Sol: <span id="sunset-time">--:--</span></p>
     </div>
     
     <script>
@@ -113,19 +115,29 @@
         }
     
         function getSunTimes(lat, lon) {
-            let url = `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&formatted=0`;
-    
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    let sunrise = new Date(data.results.sunrise);
-                    let sunset = new Date(data.results.sunset);
-                    calculatePlanetaryHours(sunrise, sunset);
-                })
-                .catch(error => {
-                    console.error("Erro ao obter horários do sol:", error);
-                });
-        }
+    let url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=sunrise,sunset&timezone=auto`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            let sunrise = data.daily.sunrise[0];
+            let sunset = data.daily.sunset[0];
+
+            // Formata para exibir corretamente
+            let sunriseFormatted = new Date(sunrise).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            let sunsetFormatted = new Date(sunset).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+            document.getElementById("sunrise-time").innerText = sunriseFormatted;
+            document.getElementById("sunset-time").innerText = sunsetFormatted;
+
+            calculatePlanetaryHours(new Date(sunrise), new Date(sunset));
+        })
+        .catch(error => {
+            console.error("Erro ao obter horários do sol:", error);
+            document.getElementById("sunrise-time").innerText = "Erro";
+            document.getElementById("sunset-time").innerText = "Erro";
+        });
+}
     
         function calculatePlanetaryHours(sunrise, sunset) {
     let planets = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
@@ -163,7 +175,7 @@
             break;
         }
     }
-}
+        }
     </script>
     
 </body>
