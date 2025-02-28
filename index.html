@@ -72,6 +72,7 @@
         
         <button class="button" onclick="getLocation()">Detectar Localização</button>
         <p id="location-status">Localização não detectada.</p>
+        <p id="city-name">Cidade não detectada.</p>
     </div>
     
     <script>
@@ -88,8 +89,25 @@
             let lon = position.coords.longitude;
             document.getElementById("location-status").innerHTML = `Latitude: ${lat}, Longitude: ${lon}`;
             getSunTimes(lat, lon);
+            getCityName(lat, lon);
         }
+        
+        function getCityName(lat, lon) {
+            let url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
     
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    let city = data.address.city || data.address.town || data.address.village || "Cidade desconhecida";
+                    let state = data.address.state || "Estado desconhecido";
+                    document.getElementById("city-name").innerText = `Cidade: ${city}, ${state}`;
+                })
+                .catch(error => {
+                    console.error("Erro ao obter o nome da cidade:", error);
+                    document.getElementById("city-name").innerText = "Erro ao obter a cidade.";
+                });
+        }
+        
         function showError(error) {
             document.getElementById("location-status").innerHTML = "Erro ao obter localização.";
         }
