@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horas Planetárias</title>
+    <style>
+            body {
+        font-family: 'Arial', sans-serif;
+        text-align: center;
+        background: linear-gradient(to bottom, #1a1a2e, #0f3460);
+        color: #fff;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 90%;
+        width: 600px;
+        margin: auto;
+        padding: 20px;
+        background: rgba(22, 33, 62, 0.9);
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+    }
+
+    h1, h2 {
+        color: #f8b400;
+        margin-bottom: 10px;
+    }
+
+    .planet-info {
+        margin: 20px 0;
+        padding: 15px;
+        background: rgba(15, 52, 96, 0.8);
+        border-radius: 5px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .button {
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #f8b400;
+        color: #1a1a2e;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease-in-out;
+    }
+
+    .button:hover {
+        background-color: #ffcc29;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            width: 95%;
+        }
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Horas Planetárias</h1>
+        <p>Confira o dia e a hora planetária atual baseado na sua localização.</p>
+        
+        <div class="planet-info">
+            <h2>Dia Planetário: <span id="dia-planetario">...</span></h2>
+            <h2>Hora Planetária Atual: <span id="planet-icon">🔆</span> <span id="hora-planetaria">...</span></h2>
+        </div>
+        
+        <button class="button" onclick="getLocation()">Detectar Localização</button>
+        <p id="location-status">Localização não detectada.</p>
+    </div>
+    
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                document.getElementById("location-status").innerHTML = "Geolocalização não suportada pelo navegador.";
+            }
+        }
+    
+        function showPosition(position) {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+            document.getElementById("location-status").innerHTML = `Latitude: ${lat}, Longitude: ${lon}`;
+            getSunTimes(lat, lon);
+        }
+    
+        function showError(error) {
+            document.getElementById("location-status").innerHTML = "Erro ao obter localização.";
+        }
+    
+        function getSunTimes(lat, lon) {
+            let url = `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&formatted=0`;
+    
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    let sunrise = new Date(data.results.sunrise);
+                    let sunset = new Date(data.results.sunset);
+                    calculatePlanetaryHours(sunrise, sunset);
+                })
+                .catch(error => {
+                    console.error("Erro ao obter horários do sol:", error);
+                });
+        }
+    
+        function calculatePlanetaryHours(sunrise, sunset) {
+    let planets = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
+    let today = new Date();
+    let weekday = today.getDay();
+    let planetaryDay = ["☉ Sol", "☽ Lua", "♂ Marte", "☿ Mercúrio", "♃ Júpiter", "♀ Vênus", "♄ Saturno"][weekday];
+
+    document.getElementById("dia-planetario").innerText = planetaryDay;
+
+    let dayHours = [];
+    let nightHours = [];
+
+    let dayDuration = (sunset - sunrise) / 12;
+    let nightDuration = ((24 * 60 * 60 * 1000) - (sunset - sunrise)) / 12;
+
+    for (let i = 0; i < 12; i++) {
+        dayHours.push(new Date(sunrise.getTime() + i * dayDuration));
+        nightHours.push(new Date(sunset.getTime() + i * nightDuration));
+    }
+
+    let allHours = [...dayHours, ...nightHours];
+    let firstPlanetIndex = planets.indexOf(planetaryDay);
+    let planetaryHours = [];
+
+    for (let i = 0; i < allHours.length; i++) {
+        planetaryHours.push(planets[(firstPlanetIndex + i) % 7]);
+    }
+
+    let currentHour = new Date();
+    for (let i = 0; i < allHours.length - 1; i++) {
+        if (currentHour >= allHours[i] && currentHour < allHours[i + 1]) {
+            let planetData = planetaryHours[i].split(" ");
+            document.getElementById("planet-icon").innerText = planetData[0]; // Ícone
+            document.getElementById("hora-planetaria").innerText = planetData[1]; // Nome do Planeta
+            break;
+        }
+    }
+}
+    </script>
+    
+</body>
+</html>
