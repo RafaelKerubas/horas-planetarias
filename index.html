@@ -72,10 +72,13 @@
     <!-- Primeira moldura: Planeta Regente -->
     <div class="planet-info" id="dia-planetario-container">
       <h2>Planeta Regente: <span id="dia-planetario">...</span></h2>
-      <!-- Day-definition agora logo abaixo do título -->
+      <!-- Day-definition logo abaixo do título -->
       <p class="day-definition" id="day-definition">( )</p>
-      <p class="tempo-restante" id="tempo-passado">O Sol nasceu há: --:--:--</p>
-      <p class="tempo-restante" id="tempo-ate-pôr">O Sol se põe em: --:--:--</p>
+      <!-- Cronômetros combinados em uma única linha -->
+      <p class="tempo-restante" id="tempo-timers">
+        <span id="tempo-passado">O Sol nasceu há: --:--:--</span> | 
+        <span id="tempo-ate-pôr">O Sol se põe em: --:--:--</span>
+      </p>
     </div>
     
     <!-- Segunda moldura: Informações adicionais -->
@@ -118,7 +121,7 @@
     const chaldeanOrder = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
     // Nomes dos dias da semana
     const dayNames = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-    // Definições para cada dia (apenas as frases em parênteses)
+    // Definições para cada dia (apenas as frases)
     const dayDefinitions = {
       "Domingo": "Dia de vitalidade, brilho pessoal e liderança. Ideal para rituais de fortalecimento da identidade, sucesso, autoestima e visibilidade.",
       "Segunda-feira": "Ligada às emoções, intuição e memória ancestral. Excelente para práticas de autoconhecimento, cura emocional e conexão com o feminino.",
@@ -274,7 +277,7 @@
       }
   
       document.getElementById("dia-planetario").innerText = firstHourMapping[startDayIndex];
-      // Atualiza a definição do dia (somente a frase)
+      // Atualiza a definição do dia (apenas a frase)
       document.getElementById("day-definition").innerText = dayDefinitions[dayNames[startDayIndex]];
   
       let config = dayConfigurations[dayNames[startDayIndex]];
