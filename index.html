@@ -34,7 +34,7 @@
       background: rgba(15, 52, 96, 0.8);
       border-radius: 5px;
     }
-    /* Reduzindo margens verticais para aproximar os containers */
+    /* Reduzindo margens para aproximar os containers */
     #dia-planetario-container {
       margin-bottom: 5px;
     }
@@ -47,6 +47,7 @@
     }
     #hora-planetaria-container {
       margin-top: 5px;
+      margin-bottom: 10px;  /* Margem inferior de 10px */
     }
     .col {
       flex: 1 1 48%;
@@ -424,7 +425,7 @@
       }, 1000);
     }
   
-    // Atualiza informações lunares usando SunCalc com os valores reais de latitude e longitude.
+    // Atualiza informações lunares usando SunCalc
     function updateMoonInfo(lat, lon) {
       const moonIllum = SunCalc.getMoonIllumination(new Date());
       const phase = moonIllum.phase; // valor entre 0 e 1
