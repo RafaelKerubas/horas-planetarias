@@ -69,28 +69,28 @@
     <h1>Horas Planetárias</h1>
     <p>Confira o dia e a hora planetária atual baseado na sua localização.</p>
     
-    <!-- Moldura para o Planeta Regente -->
+    <!-- Primeira moldura: Planeta Regente -->
     <div class="planet-info" id="dia-planetario-container">
       <h2>Planeta Regente: <span id="dia-planetario">...</span></h2>
+      <!-- Day-definition agora logo abaixo do título -->
+      <p class="day-definition" id="day-definition">( )</p>
       <p class="tempo-restante" id="tempo-passado">O Sol nasceu há: --:--:--</p>
       <p class="tempo-restante" id="tempo-ate-pôr">O Sol se põe em: --:--:--</p>
-      <!-- Nova linha com a definição energética do dia -->
-      <p class="day-definition" id="day-definition">( )</p>
     </div>
     
-    <!-- Moldura para a Hora Planetária -->
+    <!-- Segunda moldura: Informações adicionais -->
+    <div class="planet-info" id="info-container">
+      <h2 id="info-title">...</h2>
+      <p id="info-message"></p>
+    </div>
+    
+    <!-- Terceira moldura: Hora Planetária Atual -->
     <div class="planet-info" id="hora-planetaria-container">
       <h2>Hora Planetária Atual: <span id="planet-icon">🔆</span> <span id="hora-planetaria">...</span></h2>
       <p class="tempo-restante">Tempo Restante: <span id="cronometro">--:--:--</span></p>
       <p class="adjacent-hours">
         Hora Anterior: <span id="hora-anterior">...</span> | Próxima Hora: <span id="proxima-hora">...</span>
       </p>
-    </div>
-    
-    <!-- Terceira moldura para informações adicionais -->
-    <div class="planet-info" id="info-container">
-      <h2 id="info-title">...</h2>
-      <p id="info-message"></p>
     </div>
     
     <button class="button" onclick="getLocation()">Detectar Localização</button>
@@ -102,6 +102,8 @@
   </div>
   
   <script>
+    // Configurações dos dados para cada dia da semana
+
     // Mapeamento para o Planeta Regente com deuses:
     const firstHourMapping = [
       "☉ Hélios/Sol",
@@ -116,7 +118,7 @@
     const chaldeanOrder = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
     // Nomes dos dias da semana
     const dayNames = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-    // Definições energéticas para cada dia (somente as frases dentro dos parênteses)
+    // Definições para cada dia (apenas as frases em parênteses)
     const dayDefinitions = {
       "Domingo": "Dia de vitalidade, brilho pessoal e liderança. Ideal para rituais de fortalecimento da identidade, sucesso, autoestima e visibilidade.",
       "Segunda-feira": "Ligada às emoções, intuição e memória ancestral. Excelente para práticas de autoconhecimento, cura emocional e conexão com o feminino.",
@@ -127,7 +129,7 @@
       "Sábado": "Estrutura, disciplina e introspecção. Propício para banimentos, encerramentos de ciclos, proteção e fortalecimento espiritual."
     };
   
-    // Configurações específicas para cada dia (exemplificadas para Domingo e Sábado; os demais podem ser adicionados)
+    // Configurações específicas para cada dia (exemplo: Domingo e Sábado)
     const dayConfigurations = {
       "Domingo": {
         sequence: ["☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua", "♄ Saturno", "♃ Júpiter", "♂ Marte"],
@@ -187,7 +189,7 @@
           "Hora de aborrecimento e inimizade"                                   // 24ª
         ]
       }
-      // Outras configurações podem ser adicionadas conforme necessário
+      // Outras configurações para os demais dias podem ser adicionadas...
     };
   
     function getLocation() {
@@ -239,7 +241,7 @@
           document.getElementById("sunrise-time").innerText = sunriseFormatted;
           document.getElementById("sunset-time").innerText = sunsetFormatted;
   
-          // Armazena globalmente para refresh automático
+          // Armazena valores globalmente para o refresh automático
           window.sunrise = sunrise;
           window.sunset = sunset;
           window.nextSunrise = nextSunrise;
@@ -272,7 +274,7 @@
       }
   
       document.getElementById("dia-planetario").innerText = firstHourMapping[startDayIndex];
-      // Atualiza a definição do dia (apenas a frase)
+      // Atualiza a definição do dia (somente a frase)
       document.getElementById("day-definition").innerText = dayDefinitions[dayNames[startDayIndex]];
   
       let config = dayConfigurations[dayNames[startDayIndex]];
