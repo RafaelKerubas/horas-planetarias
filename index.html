@@ -26,7 +26,6 @@
       color: #f8b400;
       margin-bottom: 10px;
     }
-    /* Molduras para os campos */
     .planet-info {
       margin: 20px 0;
       padding: 15px;
@@ -51,11 +50,9 @@
     .button:hover {
       background-color: #ffcc29;
     }
-    /* Oculta o status de localização */
     #location-status {
       display: none;
     }
-    /* Cidade e estado em negrito */
     #city-name {
       font-weight: bold;
     }
@@ -102,46 +99,51 @@
   </div>
   
   <script>
-    // Novo mapeamento para o Dia Planetário com deuses
+    // Mapeamento para o Dia Planetário com deuses:
+    // Domingo: "☉ Hélios/Sol", Segunda: "☽ Selene/Lua", Terça: "♂ Ares/Marte",
+    // Quarta: "☿ Hermes/Mercúrio", Quinta: "♃ Zeus/Júpiter", Sexta: "♀ Afrodite/Vênus",
+    // Sábado: "♄ Cronos/Saturno"
     const firstHourMapping = [
-      "♄ Cronos/Saturno",
       "☉ Hélios/Sol",
       "☽ Selene/Lua",
       "♂ Ares/Marte",
       "☿ Hermes/Mercúrio",
       "♃ Zeus/Júpiter",
-      "♀ Afrodite/Vênus"
+      "♀ Afrodite/Vênus",
+      "♄ Cronos/Saturno"
     ];
-    // Ordem caldeia fixa (do mais lento para o mais rápido)
+    // Ordem caldeia padrão (não será usada para sábado)
     const chaldeanOrder = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
     // Nomes dos dias da semana
     const dayNames = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-    // Mensagens para cada hora se for sábado (1ª a 24ª)
+    // Sequência personalizada para sábado (para formar as 24 horas)
+    const saturdaySequence = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
+    // Mensagens para cada hora de sábado (1ª até 24ª)
     const saturdayMessages = [
-      "Magia ou talismãs para ferir seu inimigo ou enviar doenças",
-      "Pode causar um naufrágio ou prejudicar alguém",
-      "Para configurar encantamentos",
-      "Pode fazer os senhores lutarem entre si",
-      "Pode causar ódio entre um casal",
-      "Pode encontrar o tesouro",
-      "Pode falar com demônios",
-      "Para realizar a adivinhação da bacia",
-      "Para realizar a adivinhação do crânio",
-      "Pode fazer com que os povos mergulhem no mar",
-      "Pode deixar os litigantes furiosos uns com os outros",
-      "Pode causar medo e inimizade",
-      "Benéfico para descobrir segredos",
-      "Pode ver pessoas mortas",
-      "Para ter visões, adivinhação de água",
-      "Útil para ensinar",
-      "hora muito maligna",
-      "hora inútil",
-      "Para ganhar dinheiro em dados",
-      "Pode conter todas as coisas boas",
-      "Hora sem virtude",
-      "Pode causar visões",
-      "Útil para lucro",
-      "Hora de aborrecimento e inimizade"
+      "Magia ou talismãs para ferir seu inimigo ou enviar doenças",       // 1ª
+      "Pode causar um naufrágio ou prejudicar alguém",                      // 2ª
+      "Para configurar encantamentos",                                      // 3ª
+      "Pode fazer os senhores lutarem entre si",                           // 4ª
+      "Pode causar ódio entre um casal",                                    // 5ª
+      "Pode encontrar o tesouro",                                           // 6ª
+      "Pode falar com demônios",                                             // 7ª
+      "Para realizar a adivinhação da bacia",                               // 8ª
+      "Para realizar a adivinhação do crânio",                                // 9ª
+      "Pode fazer com que os povos mergulhem no mar",                        // 10ª
+      "Pode deixar os litigantes furiosos uns com os outros",                // 11ª
+      "Pode causar medo e inimizade",                                       // 12ª
+      "Benéfico para descobrir segredos",                                  // 13ª
+      "Pode ver pessoas mortas",                                            // 14ª
+      "Para ter visões – adivinhação de água",                               // 15ª
+      "Útil para ensinar",                                                  // 16ª
+      "Hora muito maligna",                                                 // 17ª
+      "Hora inútil",                                                        // 18ª
+      "Para ganhar dinheiro em dados",                                      // 19ª
+      "Pode conter todas as coisas boas",                                   // 20ª
+      "Hora sem virtude",                                                   // 21ª
+      "Pode causar visões",                                                 // 22ª
+      "Útil para lucro",                                                    // 23ª
+      "Hora de aborrecimento e inimizade"                                   // 24ª
     ];
   
     function getLocation() {
@@ -220,15 +222,22 @@
         startDayIndex = today.getDay();
       }
   
+      // Exibe o Dia Planetário com o mapeamento dos deuses
       document.getElementById("dia-planetario").innerText = firstHourMapping[startDayIndex];
   
-      let firstHourPlanet = firstHourMapping[startDayIndex];
-      let icon = firstHourPlanet.charAt(0);
-      let firstHourIndex = chaldeanOrder.findIndex(el => el.startsWith(icon));
-  
       let planetaryHours = [];
-      for (let i = 0; i < 24; i++) {
-        planetaryHours.push(chaldeanOrder[(firstHourIndex + i) % 7]);
+      if (startDayIndex === 6) {
+        // Se for sábado, use a sequência personalizada
+        for (let i = 0; i < 24; i++) {
+          planetaryHours.push(saturdaySequence[i % 7]);
+        }
+      } else {
+        let firstHourPlanet = firstHourMapping[startDayIndex];
+        let icon = firstHourPlanet.charAt(0);
+        let firstHourIndex = chaldeanOrder.findIndex(el => el.startsWith(icon));
+        for (let i = 0; i < 24; i++) {
+          planetaryHours.push(chaldeanOrder[(firstHourIndex + i) % 7]);
+        }
       }
   
       let dayDuration = (sunset - sunrise) / 12;
@@ -275,7 +284,7 @@
       let ordinal = currentHourIndex + "ª";
       document.getElementById("info-title").innerText = dayTitle + " - " + ordinal + " Hora";
   
-      // Se for sábado (índice 6), exibe a mensagem definida para aquela hora
+      // Se for sábado, exibe a mensagem definida para aquela hora
       if (startDayIndex === 6) {
         document.getElementById("info-message").innerText = saturdayMessages[currentHourIndex - 1];
       } else {
