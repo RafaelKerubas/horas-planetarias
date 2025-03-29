@@ -28,7 +28,7 @@
       color: #f8b400;
       margin-bottom: 10px;
     }
-    /* Base para os módulos */
+    /* Base para os módulos: todos com margin-bottom de 5px */
     .planet-info {
       padding: 15px;
       background: rgba(15, 52, 96, 0.8);
@@ -40,14 +40,11 @@
       font-size: 0.8em;
       margin-top: 5px;
     }
-    /* Reduzir o espaçamento entre os parágrafos dentro do kit */
+    /* Reduzir o espaçamento entre parágrafos dentro do kit */
     #kit-content p {
       margin: 2px 0;
     }
-    /* Novo módulo: Kit Planetário de hoje */
-    #kit-planetario-container {
-      margin-bottom: 5px;
-    }
+    /* Linha com duas colunas */
     .row {
       display: flex;
       gap: 5px;
@@ -55,6 +52,7 @@
       justify-content: space-between;
       margin: 5px 0;
     }
+    /* Módulo Hora Planetária Atual com margin-top e margin-bottom de 5px */
     #hora-planetaria-container {
       margin-top: 5px;
       margin-bottom: 5px;
@@ -87,6 +85,10 @@
     }
     #lua-eclipse {
       margin-top: 5px;
+    }
+    /* Container para o botão com margin-top de 10px */
+    .button-container {
+      margin-top: 10px;
     }
     .button {
       padding: 12px 24px;
@@ -171,14 +173,15 @@
       </p>
     </div>
     
-    <div>
+    <!-- Container para o botão com margem superior de 10px -->
+    <div class="button-container">
       <button class="button" onclick="getLocation()">Detectar Localização</button>
-      <p id="location-status">Localização não detectada.</p>
-      <p id="city-name">Cidade não detectada.</p>
-      <p id="sunrise-sunset">
-        Nascer do Sol: <span id="sunrise-time">--:--</span> | Pôr do Sol: <span id="sunset-time">--:--</span>
-      </p>
     </div>
+    <p id="location-status">Localização não detectada.</p>
+    <p id="city-name">Cidade não detectada.</p>
+    <p id="sunrise-sunset">
+      Nascer do Sol: <span id="sunrise-time">--:--</span> | Pôr do Sol: <span id="sunset-time">--:--</span>
+    </p>
   </div>
   
   <script>
@@ -309,7 +312,6 @@
       { date: "2025-12-27", info: "Lua Crescente em Áries, 27 de dezembro, às 16h09" }
     ];
 
-    // Função para formatar a data (ex: "2025-03-29" para "29 de março de 2025")
     function formatEclipseDate(dateStr) {
       const dateObj = new Date(dateStr);
       const day = dateObj.getUTCDate();
@@ -334,7 +336,7 @@
       getSunTimes(lat, lon);
       getCityName(lat, lon);
       updateMoonInfo(lat, lon);
-      // O kit é atualizado dentro de calculatePlanetaryHours, que é chamada em getSunTimes.
+      // O módulo Kit Planetário será atualizado dentro de calculatePlanetaryHours
     }
 
     function getCityName(lat, lon) {
@@ -574,7 +576,7 @@
       if (currentEvent) {
         let signName = extractSign(currentEvent.info);
         if (todayStr === currentEvent.date) {
-          // No dia exato do evento, exibe o evento completo
+          // No dia do evento, exibe o evento completo
           let dashIndex = currentEvent.info.indexOf("–");
           if (dashIndex !== -1) {
             let eclipseInfo = currentEvent.info.substring(dashIndex + 1).trim();
