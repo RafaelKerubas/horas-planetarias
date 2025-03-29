@@ -64,6 +64,8 @@
     
     <div class="planet-info">
       <h2>Dia Planetário: <span id="dia-planetario">...</span></h2>
+      <!-- Novo marcador: Tempo Decorrido desde o nascer do sol -->
+      <p class="tempo-restante" id="tempo-passado">Tempo Decorrido: --:--:--</p>
       <h2>Hora Planetária Atual: <span id="planet-icon">🔆</span> <span id="hora-planetaria">...</span></h2>
       <p class="tempo-restante">Tempo Restante: <span id="cronometro">--:--:--</span></p>
       <p class="adjacent-hours">
@@ -136,6 +138,8 @@
           document.getElementById("sunset-time").innerText = sunsetFormatted;
   
           calculatePlanetaryHours(sunrise, sunset, nextSunrise);
+          // Inicia o marcador de tempo decorrido desde o nascer do sol
+          startElapsedTimeTimer(sunrise);
         })
         .catch(error => {
           console.error("Erro ao obter horários do sol:", error);
@@ -222,6 +226,7 @@
       startCronometro(intervalEnd);
     }
   
+    // Função para iniciar e atualizar o cronômetro de tempo restante da hora atual
     function startCronometro(endTime) {
       if (window.cronometroInterval) clearInterval(window.cronometroInterval);
   
@@ -243,6 +248,30 @@
             (seconds < 10 ? "0" + seconds : seconds);
           document.getElementById("cronometro").innerText = formatted;
         }
+      }, 1000);
+    }
+  
+    // Função para iniciar e atualizar o marcador de tempo decorrido desde o nascer do sol
+    function startElapsedTimeTimer(sunrise) {
+      if (window.elapsedTimeInterval) clearInterval(window.elapsedTimeInterval);
+  
+      window.elapsedTimeInterval = setInterval(() => {
+        let now = new Date();
+        // Se o horário atual for antes do nascer, o tempo decorrido será zero
+        let diff = now - sunrise;
+        if (diff < 0) diff = 0;
+  
+        const totalSeconds = Math.floor(diff / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+  
+        const formatted =
+          (hours < 10 ? "0" + hours : hours) + ":" +
+          (minutes < 10 ? "0" + minutes : minutes) + ":" +
+          (seconds < 10 ? "0" + seconds : seconds);
+  
+        document.getElementById("tempo-passado").innerText = "Tempo Decorrido: " + formatted;
       }, 1000);
     }
   </script>
