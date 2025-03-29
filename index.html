@@ -58,9 +58,21 @@
       font-size: 0.8em;
       margin-top: 5px;
     }
-    /* Aumenta somente o ícone e texto da Lua na moldura "A Lua Hoje" */
+    /* Aumenta o ícone e texto da fase lunar */
     #lua-phase {
       font-size: 2em;
+      text-align: left;
+    }
+    /* Garantir que o módulo "A Lua Hoje" tenha layout flex para alinhar os dois parágrafos lado a lado */
+    #lua-info-container {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+    }
+    #lua-sign {
+      text-align: left;
+      font-size: 0.8em;
     }
     .button {
       padding: 12px 24px;
@@ -87,6 +99,10 @@
       }
       .col {
         flex: 1 1 100%;
+      }
+      #lua-info-container {
+        flex-direction: column;
+        align-items: center;
       }
     }
   </style>
@@ -116,8 +132,8 @@
       <!-- Coluna 2: A Lua Hoje -->
       <div class="planet-info col" id="lua-info-container">
         <h2>A Lua Hoje</h2>
-        <p class="tempo-restante" id="lua-phase">--</p>
-        <p class="tempo-restante" id="lua-sign">Signo e Eclipse: --</p>
+        <p id="lua-phase">--</p>
+        <p id="lua-sign">Signo e Eclipse: --</p>
       </div>
     </div>
     
@@ -279,6 +295,29 @@
       return `${day} de ${month} de ${year}`;
     }
 
+    // Função para extrair apenas o nome do signo a partir do texto do evento
+    function extractSign(info) {
+      let lowerInfo = info.toLowerCase();
+      let index = lowerInfo.indexOf(" em ");
+      if (index !== -1) {
+        let after = info.substring(index + 4).trim();
+        // Encontrar o primeiro delimitador: vírgula ou hífen
+        let commaIndex = after.indexOf(",");
+        let hyphenIndex = after.indexOf("–");
+        let endIndex = after.length;
+        if (commaIndex !== -1 && hyphenIndex !== -1) {
+          endIndex = Math.min(commaIndex, hyphenIndex);
+        } else if (commaIndex !== -1) {
+          endIndex = commaIndex;
+        } else if (hyphenIndex !== -1) {
+          endIndex = hyphenIndex;
+        }
+        return after.substring(0, endIndex).trim();
+      }
+      return "";
+    }
+
+    // Função para obter a localização
     function getLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition, showError);
@@ -287,6 +326,7 @@
       }
     }
 
+    // Função chamada ao detectar a localização
     function showPosition(position) {
       document.getElementById("location-status").innerText = "Localização detectada.";
       let lat = position.coords.latitude;
@@ -485,8 +525,9 @@
     }
 
     // Atualiza informações lunares usando SunCalc.
-    // Exibe o ícone e nome da fase no campo "lua-phase".
-    // Em "lua-sign", verifica se há um evento no calendário lunar para a data atual.
+    // Em "lua-phase": exibe o ícone e o nome da fase.
+    // Em "lua-sign": se hoje for o dia do evento, exibe as informações completas, com a parte de eclipse em negrito;
+    // caso contrário, exibe apenas o nome do signo.
     function updateMoonInfo(lat, lon) {
       const moonIllum = SunCalc.getMoonIllumination(new Date());
       const phase = moonIllum.phase; // valor entre 0 e 1
@@ -522,17 +563,57 @@
       // Obter a data atual em formato YYYY-MM-DD
       const todayStr = new Date().toISOString().split("T")[0];
       let currentEvent = null;
-      // Percorre os eventos e atualiza currentEvent para o último evento cuja data seja menor ou igual à data atual
+      // Percorre os eventos e encontra o mais recente (com data <= hoje)
       for (const event of lunarCalendar) {
         if (event.date <= todayStr) {
           currentEvent = event;
         }
       }
       if (currentEvent) {
-        document.getElementById("lua-sign").innerText = currentEvent.info;
+        if (todayStr === currentEvent.date) {
+          // No dia do evento, mostrar informações completas, com a parte de Eclipse em negrito se houver
+          if (currentEvent.info.includes("Eclipse")) {
+            const parts = currentEvent.info.split("–");
+            if (parts.length > 1) {
+              const signPart = extractSign(parts[0]);
+              const eclipsePart = parts[1].trim();
+              document.getElementById("lua-sign").innerHTML = signPart + " – <strong>" + eclipsePart + "</strong>";
+            } else {
+              document.getElementById("lua-sign").innerText = currentEvent.info;
+            }
+          } else {
+            document.getElementById("lua-sign").innerText = currentEvent.info;
+          }
+        } else {
+          // Se não for o dia exato, exibe apenas o nome do signo
+          const signName = extractSign(currentEvent.info);
+          document.getElementById("lua-sign").innerText = signName;
+        }
       } else {
         document.getElementById("lua-sign").innerText = "Signo e Eclipse: --";
       }
+    }
+
+    // Função auxiliar para extrair somente o nome do signo a partir do evento
+    function extractSign(info) {
+      let lowerInfo = info.toLowerCase();
+      let index = lowerInfo.indexOf(" em ");
+      if (index !== -1) {
+        let after = info.substring(index + 4).trim();
+        // Encontrar o primeiro delimitador: vírgula ou hífen
+        let commaIndex = after.indexOf(",");
+        let hyphenIndex = after.indexOf("–");
+        let endIndex = after.length;
+        if (commaIndex !== -1 && hyphenIndex !== -1) {
+          endIndex = Math.min(commaIndex, hyphenIndex);
+        } else if (commaIndex !== -1) {
+          endIndex = commaIndex;
+        } else if (hyphenIndex !== -1) {
+          endIndex = hyphenIndex;
+        }
+        return after.substring(0, endIndex).trim();
+      }
+      return "";
     }
   </script>
 </body>
