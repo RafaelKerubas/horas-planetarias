@@ -132,7 +132,7 @@
       "Sexta-feira": "Harmonia, prazer e beleza em destaque. Ótima para encantamentos voltados ao amor, à arte, à autoestima e à atração.",
       "Sábado": "Estrutura, disciplina e introspecção. Propício para banimentos, encerramentos de ciclos, proteção e fortalecimento espiritual."
     };
-    // Exemplo de configurações para Domingo e Sábado (os demais podem ser adicionados conforme necessário)
+    // Configurações específicas (exemplo: Domingo e Sábado)
     const dayConfigurations = {
       "Domingo": {
         sequence: ["☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua", "♄ Saturno", "♃ Júpiter", "♂ Marte"],
@@ -192,7 +192,7 @@
           "Hora de aborrecimento e inimizade"                                   // 24ª
         ]
       }
-      // Outras configurações podem ser adicionadas aqui...
+      // Outras configurações podem ser adicionadas conforme necessário
     };
   
     function getLocation() {
@@ -264,7 +264,6 @@
       let today = new Date();
       let currentTime = today;
       let startDayIndex;
-  
       if (currentTime < sunrise) {
         let prevSunrise = new Date(sunrise.getTime() - 24 * 60 * 60 * 1000);
         let prevSunset = new Date(sunset.getTime() - 24 * 60 * 60 * 1000);
@@ -296,10 +295,8 @@
   
       let dayDuration = (sunset - sunrise) / 12;
       let nightDuration = (nextSunrise - sunset) / 12;
-  
       let intervalStart, intervalEnd;
       let currentHourIndex;
-  
       if (currentTime >= sunrise && currentTime < sunset) {
         let h = Math.floor((currentTime - sunrise) / dayDuration);
         currentHourIndex = h + 1;
@@ -322,19 +319,14 @@
   
       let currentPlanet = planetaryHours[currentHourIndex - 1];
       document.getElementById("planet-icon").innerText = currentPlanet;
-  
       let previousPlanet = planetaryHours[(currentHourIndex - 2 + 24) % 24];
       document.getElementById("hora-anterior").innerText = previousPlanet;
-  
       let nextPlanet = planetaryHours[(currentHourIndex) % 24];
       document.getElementById("proxima-hora").innerText = nextPlanet;
-  
       startCronometro(intervalEnd);
-  
       let dayTitle = dayNames[startDayIndex];
       let ordinal = currentHourIndex + "ª";
       document.getElementById("info-title").innerText = dayTitle + " - " + ordinal + " Hora";
-  
       if (config && config.messages) {
         document.getElementById("info-message").innerText = config.messages[currentHourIndex - 1];
       } else {
@@ -415,14 +407,18 @@
       }, 1000);
     }
   
-    // Função para atualizar as informações lunares usando o Open‑Meteo Astronomy
+    // Função para atualizar informações lunares usando Open‑Meteo Astronomy com data
     function updateMoonInfo(lat, lon) {
-      const url = `https://api.open-meteo.com/v1/astronomy?latitude=${lat}&longitude=${lon}&timezone=auto`;
+      const date = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+      const url = `https://api.open-meteo.com/v1/astronomy?latitude=${lat}&longitude=${lon}&date=${date}&timezone=auto`;
       fetch(url)
         .then(response => response.json())
         .then(data => {
+          if (!data.astronomy || !data.astronomy.astro) {
+            throw new Error("Dados astronômicos não encontrados");
+          }
           const astro = data.astronomy.astro;
-          const moonPhaseValue = astro.moon_phase; // valor entre 0 e 1
+          const moonPhaseValue = parseFloat(astro.moon_phase);
           let phaseName = "";
           let phaseIcon = "";
           if (moonPhaseValue < 0.125) {
