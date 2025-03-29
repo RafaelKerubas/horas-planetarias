@@ -1,36 +1,443 @@
-function updateMoonInfo(lat, lon) {
-  // Obter a iluminação lunar (fase) para a data atual usando SunCalc
-  const moonIllum = SunCalc.getMoonIllumination(new Date());
-  const phase = moonIllum.phase; // valor entre 0 e 1
-  let phaseName = "";
-  let phaseIcon = "";
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horas Planetárias</title>
+  <!-- Inclusão da biblioteca SunCalc via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: linear-gradient(to bottom, #1a1a2e, #0f3460);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 90%;
+      width: 600px;
+      margin: auto;
+      padding: 20px;
+      background: rgba(22, 33, 62, 0.9);
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+    }
+    h1, h2 {
+      color: #f8b400;
+      margin-bottom: 10px;
+    }
+    /* Molduras para os campos */
+    .planet-info {
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(15, 52, 96, 0.8);
+      border-radius: 5px;
+    }
+    .tempo-restante, .adjacent-hours, #info-message, .day-definition {
+      color: #f8b400;
+      font-size: 0.8em;
+      margin-top: 5px;
+    }
+    .button {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: #f8b400;
+      color: #1a1a2e;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .button:hover {
+      background-color: #ffcc29;
+    }
+    #location-status {
+      display: none;
+    }
+    #city-name {
+      font-weight: bold;
+    }
+    @media (max-width: 768px) {
+      .container {
+        width: 95%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Horas Planetárias</h1>
+    <p>Confira o dia e a hora planetária atual baseado na sua localização.</p>
+    
+    <!-- Moldura 1: Planeta Regente -->
+    <div class="planet-info" id="dia-planetario-container">
+      <h2>Planeta Regente: <span id="dia-planetario">...</span></h2>
+      <!-- Day-definition logo abaixo do título -->
+      <p class="day-definition" id="day-definition">( )</p>
+      <p class="tempo-restante" id="tempo-timers">
+        <span id="tempo-passado">O Sol nasceu há: --:--:--</span> | 
+        <span id="tempo-ate-pôr">O Sol se põe em: --:--:--</span>
+      </p>
+    </div>
+    
+    <!-- Moldura 2: Informações adicionais -->
+    <div class="planet-info" id="info-container">
+      <h2 id="info-title">...</h2>
+      <p id="info-message"></p>
+    </div>
+    
+    <!-- Moldura 3: Hora Planetária Atual -->
+    <div class="planet-info" id="hora-planetaria-container">
+      <h2>Hora Planetária Atual: <span id="planet-icon">🔆</span> <span id="hora-planetaria">...</span></h2>
+      <p class="tempo-restante">Tempo Restante: <span id="cronometro">--:--:--</span></p>
+      <p class="adjacent-hours">
+        Hora Anterior: <span id="hora-anterior">...</span> | Próxima Hora: <span id="proxima-hora">...</span>
+      </p>
+    </div>
+    
+    <!-- Moldura 4: Fases da Lua & Signo Luar -->
+    <div class="planet-info" id="lua-info-container">
+      <h2>Fases da Lua & Signo Luar</h2>
+      <p class="tempo-restante" id="lua-phase">Fase da Lua: --</p>
+      <p class="tempo-restante" id="lua-sign">Signo Luar: --</p>
+    </div>
+    
+    <button class="button" onclick="getLocation()">Detectar Localização</button>
+    <p id="location-status">Localização não detectada.</p>
+    <p id="city-name">Cidade não detectada.</p>
+    <p id="sunrise-sunset">
+      Nascer do Sol: <span id="sunrise-time">--:--</span> | Pôr do Sol: <span id="sunset-time">--:--</span>
+    </p>
+  </div>
   
-  if (phase < 0.0625 || phase >= 0.9375) {
-    phaseName = "Lua Nova";
-    phaseIcon = "🌑";
-  } else if (phase < 0.1875) {
-    phaseName = "Crescente";
-    phaseIcon = "🌒";
-  } else if (phase < 0.3125) {
-    phaseName = "Quarto Crescente";
-    phaseIcon = "🌓";
-  } else if (phase < 0.4375) {
-    phaseName = "Gibosa Crescente";
-    phaseIcon = "🌔";
-  } else if (phase < 0.5625) {
-    phaseName = "Lua Cheia";
-    phaseIcon = "🌕";
-  } else if (phase < 0.6875) {
-    phaseName = "Gibosa Minguante";
-    phaseIcon = "🌖";
-  } else if (phase < 0.8125) {
-    phaseName = "Quarto Minguante";
-    phaseIcon = "🌗";
-  } else {
-    phaseName = "Minguante";
-    phaseIcon = "🌘";
-  }
+  <script>
+    // Configurações gerais
+    const firstHourMapping = [
+      "☉ Hélios/Sol",
+      "☽ Selene/Lua",
+      "♂ Ares/Marte",
+      "☿ Hermes/Mercúrio",
+      "♃ Zeus/Júpiter",
+      "♀ Afrodite/Vênus",
+      "♄ Cronos/Saturno"
+    ];
+    const chaldeanOrder = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
+    const dayNames = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+    const dayDefinitions = {
+      "Domingo": "Dia de vitalidade, brilho pessoal e liderança. Ideal para rituais de fortalecimento da identidade, sucesso, autoestima e visibilidade.",
+      "Segunda-feira": "Ligada às emoções, intuição e memória ancestral. Excelente para práticas de autoconhecimento, cura emocional e conexão com o feminino.",
+      "Terça-feira": "Energia de ação, coragem e vontade. Favorável para feitiços de proteção, superação de obstáculos e início de empreitadas ousadas.",
+      "Quarta-feira": "Regida pela mente e pela comunicação. Indicado para trabalhos mágicos ligados a estudo, escrita, comércio, viagens e eloquência.",
+      "Quinta-feira": "Vibração de expansão, sorte e sabedoria. Potente para rituais de crescimento, justiça, gratidão, fé e prosperidade.",
+      "Sexta-feira": "Harmonia, prazer e beleza em destaque. Ótima para encantamentos voltados ao amor, à arte, à autoestima e à atração.",
+      "Sábado": "Estrutura, disciplina e introspecção. Propício para banimentos, encerramentos de ciclos, proteção e fortalecimento espiritual."
+    };
+    const dayConfigurations = {
+      "Domingo": {
+        sequence: ["☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua", "♄ Saturno", "♃ Júpiter", "♂ Marte"],
+        messages: [
+          "Fazendo um discurso",
+          "Ganhando o amor de um senhor",
+          "Para se dirigir aos senhores",
+          "Para um encontro com um senhor",
+          "Pode impedir um encontro com um senhor",
+          "Pode comparecer perante um senhor",
+          "Fazer nada",
+          "Para qualquer coisa sobre senores",
+          "Para qualquer coisa sobre amor",
+          "Pode escrever uma petição",
+          "Pode fazer um discurso",
+          "Fazer nada",
+          "Pode ajudar os amigos",
+          "Para impedir um discurso",
+          "Pode enviar sonhos a um rei",
+          "Pode enviar sonhos a uma senhora",
+          "Fazer nada",
+          "Trabalhar",
+          "Fazer nada",
+          "Magia ou talismãs para o amor dos senhores",
+          "Para amarrar e restringir outros",
+          "Pode comparecer perante um rei",
+          "Pode aparecer diante de uma senhora",
+          "Descanse, não faça nada"
+        ]
+      },
+      "Sábado": {
+        sequence: ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"],
+        messages: [
+          "Magia ou talismãs para ferir seu inimigo ou enviar doenças",       // 1ª
+          "Pode causar um naufrágio ou prejudicar alguém",                      // 2ª
+          "Para configurar encantamentos",                                      // 3ª
+          "Pode fazer os senhores lutarem entre si",                           // 4ª
+          "Pode causar ódio entre um casal",                                    // 5ª
+          "Pode encontrar o tesouro",                                           // 6ª
+          "Pode falar com demônios",                                             // 7ª
+          "Para realizar a adivinhação da bacia",                               // 8ª
+          "Para realizar a adivinhação do crânio",                                // 9ª
+          "Pode fazer com que os povos mergulhem no mar",                        // 10ª
+          "Pode deixar os litigantes furiosos uns com os outros",                // 11ª
+          "Pode causar medo e inimizade",                                       // 12ª
+          "Benéfico para descobrir segredos",                                  // 13ª
+          "Pode ver pessoas mortas",                                            // 14ª
+          "Para ter visões – Para adivinhação de água",                           // 15ª
+          "Útil para ensinar",                                                  // 16ª
+          "Hora muito maligna",                                                 // 17ª
+          "Hora inútil",                                                        // 18ª
+          "Para ganhar dinheiro em dados",                                      // 19ª
+          "Pode conter todas as coisas boas",                                   // 20ª
+          "Hora sem virtude",                                                   // 21ª
+          "Pode causar visões",                                                 // 22ª
+          "Útil para lucro",                                                    // 23ª
+          "Hora de aborrecimento e inimizade"                                   // 24ª
+        ]
+      }
+      // Outras configurações para os demais dias podem ser adicionadas conforme necessário
+    };
   
-  document.getElementById("lua-phase").innerText = "Fase da Lua: " + phaseIcon + " " + phaseName;
-  document.getElementById("lua-sign").innerText = "Signo Luar: --";
-}
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+      } else {
+        document.getElementById("location-status").innerText = "Geolocalização não suportada pelo navegador.";
+      }
+    }
+  
+    function showPosition(position) {
+      document.getElementById("location-status").innerText = "Localização detectada.";
+      let lat = position.coords.latitude;
+      let lon = position.coords.longitude;
+      getSunTimes(lat, lon);
+      getCityName(lat, lon);
+      updateMoonInfo(lat, lon);
+    }
+  
+    function getCityName(lat, lon) {
+      let url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          let city = data.address.city || data.address.town || data.address.village || "Cidade desconhecida";
+          let state = data.address.state || "Estado desconhecido";
+          document.getElementById("city-name").innerText = `Cidade: ${city}, ${state}`;
+        })
+        .catch(error => {
+          console.error("Erro ao obter o nome da cidade:", error);
+          document.getElementById("city-name").innerText = "Erro ao obter a cidade.";
+        });
+    }
+  
+    function showError(error) {
+      document.getElementById("location-status").innerText = "Erro ao obter localização.";
+    }
+  
+    function getSunTimes(lat, lon) {
+      let url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=sunrise,sunset&timezone=auto`;
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          let sunrise = new Date(data.daily.sunrise[0]);
+          let sunset = new Date(data.daily.sunset[0]);
+          let nextSunrise = new Date(sunrise.getTime() + 24 * 60 * 60 * 1000);
+          let sunriseFormatted = sunrise.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          let sunsetFormatted = sunset.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          document.getElementById("sunrise-time").innerText = sunriseFormatted;
+          document.getElementById("sunset-time").innerText = sunsetFormatted;
+          window.sunrise = sunrise;
+          window.sunset = sunset;
+          window.nextSunrise = nextSunrise;
+          calculatePlanetaryHours(sunrise, sunset, nextSunrise);
+          startElapsedTimeTimer(sunrise, sunset);
+          startTimeUntilSunset(sunset, nextSunrise);
+        })
+        .catch(error => {
+          console.error("Erro ao obter horários do sol:", error);
+          document.getElementById("sunrise-time").innerText = "Erro";
+          document.getElementById("sunset-time").innerText = "Erro";
+        });
+    }
+  
+    function calculatePlanetaryHours(sunrise, sunset, nextSunrise) {
+      let today = new Date();
+      let currentTime = today;
+      let startDayIndex;
+      if (currentTime < sunrise) {
+        let prevSunrise = new Date(sunrise.getTime() - 24 * 60 * 60 * 1000);
+        let prevSunset = new Date(sunset.getTime() - 24 * 60 * 60 * 1000);
+        nextSunrise = sunrise;
+        sunrise = prevSunrise;
+        sunset = prevSunset;
+        startDayIndex = (today.getDay() + 6) % 7;
+      } else {
+        startDayIndex = today.getDay();
+      }
+      document.getElementById("dia-planetario").innerText = firstHourMapping[startDayIndex];
+      document.getElementById("day-definition").innerText = dayDefinitions[dayNames[startDayIndex]];
+      let config = dayConfigurations[dayNames[startDayIndex]];
+      let planetaryHours = [];
+      if (config && config.sequence) {
+        for (let i = 0; i < 24; i++) {
+          planetaryHours.push(config.sequence[i % config.sequence.length]);
+        }
+      } else {
+        let firstHourPlanet = firstHourMapping[startDayIndex];
+        let icon = firstHourPlanet.charAt(0);
+        let firstHourIndex = chaldeanOrder.findIndex(el => el.startsWith(icon));
+        for (let i = 0; i < 24; i++) {
+          planetaryHours.push(chaldeanOrder[(firstHourIndex + i) % 7]);
+        }
+      }
+      let dayDuration = (sunset - sunrise) / 12;
+      let nightDuration = (nextSunrise - sunset) / 12;
+      let intervalStart, intervalEnd;
+      let currentHourIndex;
+      if (currentTime >= sunrise && currentTime < sunset) {
+        let h = Math.floor((currentTime - sunrise) / dayDuration);
+        currentHourIndex = h + 1;
+        intervalStart = new Date(sunrise.getTime() + h * dayDuration);
+        intervalEnd = new Date(intervalStart.getTime() + dayDuration);
+      } else if (currentTime >= sunset && currentTime < nextSunrise) {
+        let h = Math.floor((currentTime - sunset) / nightDuration);
+        currentHourIndex = 12 + h + 1;
+        intervalStart = new Date(sunset.getTime() + h * nightDuration);
+        intervalEnd = new Date(intervalStart.getTime() + nightDuration);
+      } else if (currentTime < sunrise) {
+        currentHourIndex = 24;
+        intervalEnd = sunrise;
+        intervalStart = new Date(sunrise.getTime() - nightDuration);
+      } else {
+        currentHourIndex = 1;
+        intervalStart = nextSunrise;
+        intervalEnd = new Date(nextSunrise.getTime() + dayDuration);
+      }
+      let currentPlanet = planetaryHours[currentHourIndex - 1];
+      document.getElementById("planet-icon").innerText = currentPlanet;
+      let previousPlanet = planetaryHours[(currentHourIndex - 2 + 24) % 24];
+      document.getElementById("hora-anterior").innerText = previousPlanet;
+      let nextPlanet = planetaryHours[(currentHourIndex) % 24];
+      document.getElementById("proxima-hora").innerText = nextPlanet;
+      startCronometro(intervalEnd);
+      let dayTitle = dayNames[startDayIndex];
+      let ordinal = currentHourIndex + "ª";
+      document.getElementById("info-title").innerText = dayTitle + " - " + ordinal + " Hora";
+      if (config && config.messages) {
+        document.getElementById("info-message").innerText = config.messages[currentHourIndex - 1];
+      } else {
+        document.getElementById("info-message").innerText = "";
+      }
+    }
+  
+    function startCronometro(endTime) {
+      if (window.cronometroInterval) clearInterval(window.cronometroInterval);
+      window.cronometroInterval = setInterval(() => {
+        const now = new Date();
+        const diff = endTime - now;
+        if (diff <= 0) {
+          document.getElementById("cronometro").innerText = "00:00:00";
+          clearInterval(window.cronometroInterval);
+          calculatePlanetaryHours(window.sunrise, window.sunset, window.nextSunrise);
+        } else {
+          const totalSeconds = Math.floor(diff / 1000);
+          const hours = Math.floor(totalSeconds / 3600);
+          const minutes = Math.floor((totalSeconds % 3600) / 60);
+          const seconds = totalSeconds % 60;
+          const formatted =
+            (hours < 10 ? "0" + hours : hours) + ":" +
+            (minutes < 10 ? "0" + minutes : minutes) + ":" +
+            (seconds < 10 ? "0" + seconds : seconds);
+          document.getElementById("cronometro").innerText = formatted;
+        }
+      }, 1000);
+    }
+  
+    function startElapsedTimeTimer(sunrise, sunset) {
+      if (window.elapsedTimeInterval) clearInterval(window.elapsedTimeInterval);
+      window.elapsedTimeInterval = setInterval(() => {
+        let now = new Date();
+        let diff, label;
+        if (now < sunset) {
+          diff = now - sunrise;
+          label = "O Sol nasceu há: ";
+        } else {
+          diff = now - sunset;
+          label = "O Sol se pôs há: ";
+        }
+        if (diff < 0) diff = 0;
+        const totalSeconds = Math.floor(diff / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const formatted =
+          (hours < 10 ? "0" + hours : hours) + ":" +
+          (minutes < 10 ? "0" + minutes : minutes) + ":" +
+          (seconds < 10 ? "0" + seconds : seconds);
+        document.getElementById("tempo-passado").innerText = label + formatted;
+      }, 1000);
+    }
+  
+    function startTimeUntilSunset(sunset, nextSunrise) {
+      if (window.sunsetInterval) clearInterval(window.sunsetInterval);
+      window.sunsetInterval = setInterval(() => {
+        let now = new Date();
+        let diff, label;
+        if (now < sunset) {
+          diff = sunset - now;
+          label = "O Sol se põe em: ";
+        } else {
+          diff = nextSunrise - now;
+          label = "O Sol nascerá em: ";
+        }
+        if (diff < 0) diff = 0;
+        const totalSeconds = Math.floor(diff / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const formatted =
+          (hours < 10 ? "0" + hours : hours) + ":" +
+          (minutes < 10 ? "0" + minutes : minutes) + ":" +
+          (seconds < 10 ? "0" + seconds : seconds);
+        document.getElementById("tempo-ate-pôr").innerText = label + formatted;
+      }, 1000);
+    }
+  
+    // Atualiza informações lunares usando SunCalc para calcular a fase lunar.
+    // Agora usa os valores reais de latitude e longitude do usuário.
+    function updateMoonInfo(lat, lon) {
+      // Obtem a iluminação lunar para a data atual
+      const moonIllum = SunCalc.getMoonIllumination(new Date());
+      const phase = moonIllum.phase; // valor entre 0 e 1
+      let phaseName = "";
+      let phaseIcon = "";
+      if (phase < 0.0625 || phase >= 0.9375) {
+        phaseName = "Lua Nova";
+        phaseIcon = "🌑";
+      } else if (phase < 0.1875) {
+        phaseName = "Crescente";
+        phaseIcon = "🌒";
+      } else if (phase < 0.3125) {
+        phaseName = "Quarto Crescente";
+        phaseIcon = "🌓";
+      } else if (phase < 0.4375) {
+        phaseName = "Gibosa Crescente";
+        phaseIcon = "🌔";
+      } else if (phase < 0.5625) {
+        phaseName = "Lua Cheia";
+        phaseIcon = "🌕";
+      } else if (phase < 0.6875) {
+        phaseName = "Gibosa Minguante";
+        phaseIcon = "🌖";
+      } else if (phase < 0.8125) {
+        phaseName = "Quarto Minguante";
+        phaseIcon = "🌗";
+      } else {
+        phaseName = "Minguante";
+        phaseIcon = "🌘";
+      }
+      document.getElementById("lua-phase").innerText = "Fase da Lua: " + phaseIcon + " " + phaseName;
+      document.getElementById("lua-sign").innerText = "Signo Luar: --";
+    }
+  </script>
+  
+</body>
+</html>
