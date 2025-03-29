@@ -78,20 +78,30 @@
       width: 100%;
       text-align: left;
     }
-    /* Atualização para contorno circular no ícone da Lua */
+    /* Atualização: círculo branco atrás do ícone da Lua */
     #lua-icon {
-      font-size: 2em;
+      position: relative;
       display: inline-block;
-      width: 2.5em;
-      height: 2.5em;
-      line-height: 2.5em;
-      border: 1px solid white;
+      font-size: 2em;
+      line-height: 1;
+      z-index: 1;
+    }
+    #lua-icon::before {
+      content: "";
+      position: absolute;
+      top: 50%; 
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 2.4em; /* ligeiramente maior */
+      height: 2.4em;
+      background: #fff;
       border-radius: 50%;
+      z-index: -1;
     }
     #lua-eclipse {
       margin-top: 5px;
     }
-    /* Container para o botão */
+    /* Container para o botão (único) */
     .button-container {
       margin-top: 10px;
     }
@@ -134,10 +144,12 @@
 </head>
 <body>
   <div class="container">
-    <!-- Elementos visíveis inicialmente -->
+    <!-- Elementos iniciais visíveis -->
     <h1>Horas Planetárias</h1>
     <p>Confira o dia e a hora planetária atual baseado na sua localização.</p>
-    <div class="button-container">
+    
+    <!-- Botão Detectar Localização (único) -->
+    <div class="button-container" id="button-top">
       <button class="button" onclick="getLocation()">Detectar Localização</button>
     </div>
     
@@ -195,10 +207,8 @@
         Nascer do Sol: <span id="sunrise-time">--:--</span> | Pôr do Sol: <span id="sunset-time">--:--</span>
       </p>
       
-      <!-- Container para o botão (será movido para o fim) -->
-      <div class="button-container" id="button-bottom">
-        <button class="button" onclick="getLocation()">Detectar Localização</button>
-      </div>
+      <!-- Mover o botão para a parte inferior -->
+      <div class="button-container" id="button-top"></div>
     </div>
   </div>
   
@@ -354,10 +364,10 @@
       getSunTimes(lat, lon);
       getCityName(lat, lon);
       updateMoonInfo(lat, lon);
-      // Exibe os demais módulos
+      // Exibe os módulos adicionais
       document.getElementById("info-all").style.display = "block";
-      // Move o botão para o final dos módulos
-      document.getElementById("info-all").appendChild(document.getElementById("button-bottom"));
+      // Move o botão único para o final do conteúdo
+      document.getElementById("info-all").appendChild(document.getElementById("button-top"));
     }
 
     function getCityName(lat, lon) {
