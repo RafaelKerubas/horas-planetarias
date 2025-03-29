@@ -124,17 +124,19 @@
       fetch(url)
         .then(response => response.json())
         .then(data => {
-          let sunrise = data.daily.sunrise[0];
-          let sunset = data.daily.sunset[0];
+          let sunrise = new Date(data.daily.sunrise[0]);
+          let sunset = new Date(data.daily.sunset[0]);
+          // Calcula o próximo nascer do sol (do dia seguinte)
+          let nextSunrise = new Date(sunrise.getTime() + 24 * 60 * 60 * 1000);
   
-          // Formata para exibir corretamente
-          let sunriseFormatted = new Date(sunrise).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-          let sunsetFormatted = new Date(sunset).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          // Formata os horários para exibição
+          let sunriseFormatted = sunrise.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          let sunsetFormatted = sunset.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   
           document.getElementById("sunrise-time").innerText = sunriseFormatted;
           document.getElementById("sunset-time").innerText = sunsetFormatted;
   
-          calculatePlanetaryHours(new Date(sunrise), new Date(sunset));
+          calculatePlanetaryHours(sunrise, sunset, nextSunrise);
         })
         .catch(error => {
           console.error("Erro ao obter horários do sol:", error);
@@ -143,85 +145,88 @@
         });
     }
   
-    function calculatePlanetaryHours(sunrise, sunset) {
+    function calculatePlanetaryHours(sunrise, sunset, nextSunrise) {
+      // Ordem dos planetas na tradição caldeia
       let planets = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
       let today = new Date();
-      let weekday = today.getDay();
-      // Define o dia planetário conforme a ordem desejada
+      let weekday = today.getDay(); // 0 = domingo, 1 = segunda, etc.
+      // O primeiro planeta do dia é definido conforme a sequência:
+      // Domingo: Sol, Segunda: Lua, Terça: Marte, Quarta: Mercúrio, Quinta: Júpiter, Sexta: Vênus, Sábado: Saturno
       let planetaryDay = ["☉ Sol", "☽ Lua", "♂ Marte", "☿ Mercúrio", "♃ Júpiter", "♀ Vênus", "♄ Saturno"][weekday];
-  
       document.getElementById("dia-planetario").innerText = planetaryDay;
   
+      // Divisão do dia em 24 horas planetárias:
+      // - Do nascer do sol até o pôr do sol: 12 horas do dia.
+      // - Do pôr do sol até o próximo nascer do sol: 12 horas da noite.
       let dayHours = [];
       let nightHours = [];
   
       let dayDuration = (sunset - sunrise) / 12;
-      let nightDuration = ((24 * 60 * 60 * 1000) - (sunset - sunrise)) / 12;
+      let nightDuration = (nextSunrise - sunset) / 12;
   
+      // Horários de início das horas do dia (12 elementos)
       for (let i = 0; i < 12; i++) {
         dayHours.push(new Date(sunrise.getTime() + i * dayDuration));
+      }
+      // Horários de início das horas da noite (12 elementos)
+      for (let i = 0; i < 12; i++) {
         nightHours.push(new Date(sunset.getTime() + i * nightDuration));
       }
   
-      let allHours = [...dayHours, ...nightHours];
+      // Combina para obter 24 horários de início
+      let allHours = dayHours.concat(nightHours);
+      // Cria um array com os horários finais de cada hora (última hora termina no próximo nascer do sol)
+      let allHoursEnd = [];
+      for (let i = 0; i < allHours.length - 1; i++) {
+        allHoursEnd.push(allHours[i+1]);
+      }
+      allHoursEnd.push(nextSunrise);
+  
+      // Define a sequência dos 24 planetas para o dia, iniciando com o planeta regente da primeira hora
       let firstPlanetIndex = planets.indexOf(planetaryDay);
       let planetaryHours = [];
-  
-      for (let i = 0; i < allHours.length; i++) {
+      for (let i = 0; i < 24; i++) {
         planetaryHours.push(planets[(firstPlanetIndex + i) % 7]);
       }
   
-      let currentHour = new Date();
+      // Identifica a hora planetária atual e calcula o tempo restante para o final desse intervalo
+      let currentTime = new Date();
       let found = false;
-      for (let i = 0; i < allHours.length - 1; i++) {
-        if (currentHour >= allHours[i] && currentHour < allHours[i + 1]) {
-          let currentData = planetaryHours[i].split(" ");
-          document.getElementById("planet-icon").innerText = currentData[0]; // Ícone da hora atual
-          document.getElementById("hora-planetaria").innerText = currentData[1]; // Nome do planeta
+      for (let i = 0; i < 24; i++) {
+        let start = allHours[i];
+        let end = allHoursEnd[i];
+        if (currentTime >= start && currentTime < end) {
+          // Atualiza a hora atual na interface
+          let currentPlanet = planetaryHours[i].split(" ");
+          document.getElementById("planet-icon").innerText = currentPlanet[0];
+          document.getElementById("hora-planetaria").innerText = currentPlanet[1];
   
-          let previousIndex = (i - 1 + planetaryHours.length) % planetaryHours.length;
-          let previousData = planetaryHours[previousIndex].split(" ");
-          document.getElementById("hora-anterior").innerText = previousData[0] + " " + previousData[1];
+          // Hora anterior e próxima hora (exibindo ícone e nome)
+          let previousPlanet = planetaryHours[(i - 1 + 24) % 24].split(" ");
+          document.getElementById("hora-anterior").innerText = previousPlanet[0] + " " + previousPlanet[1];
   
-          let nextIndex = (i + 1) % planetaryHours.length;
-          let nextData = planetaryHours[nextIndex].split(" ");
-          document.getElementById("proxima-hora").innerText = nextData[0] + " " + nextData[1];
+          let nextPlanet = planetaryHours[(i + 1) % 24].split(" ");
+          document.getElementById("proxima-hora").innerText = nextPlanet[0] + " " + nextPlanet[1];
   
-          startCronometro(allHours[i + 1]);
+          // Inicia o cronômetro para o fim do intervalo da hora planetária atual
+          startCronometro(end);
           found = true;
           break;
         }
       }
-      if (!found) {
-        // Se o horário atual for antes do primeiro intervalo
-        if (currentHour < allHours[0]) {
-          let currentData = planetaryHours[0].split(" ");
-          document.getElementById("planet-icon").innerText = currentData[0];
-          document.getElementById("hora-planetaria").innerText = currentData[1];
+      if (!found && currentTime < sunrise) {
+        // Caso o acesso seja antes do nascer do sol, usa a primeira hora do dia
+        let currentPlanet = planetaryHours[0].split(" ");
+        document.getElementById("planet-icon").innerText = currentPlanet[0];
+        document.getElementById("hora-planetaria").innerText = currentPlanet[1];
   
-          let previousData = planetaryHours[planetaryHours.length - 1].split(" ");
-          document.getElementById("hora-anterior").innerText = previousData[0] + " " + previousData[1];
+        let previousPlanet = planetaryHours[23].split(" ");
+        document.getElementById("hora-anterior").innerText = previousPlanet[0] + " " + previousPlanet[1];
   
-          let nextData = planetaryHours[1].split(" ");
-          document.getElementById("proxima-hora").innerText = nextData[0] + " " + nextData[1];
+        let nextPlanet = planetaryHours[1].split(" ");
+        document.getElementById("proxima-hora").innerText = nextPlanet[0] + " " + nextPlanet[1];
   
-          startCronometro(allHours[0]);
-        }
-        // Se for após o último horário, inicia com o primeiro horário do dia seguinte
-        else if (currentHour >= allHours[allHours.length - 1]) {
-          let nextInterval = new Date(allHours[0].getTime() + 24 * 60 * 60 * 1000);
-          let currentData = planetaryHours[0].split(" ");
-          document.getElementById("planet-icon").innerText = currentData[0];
-          document.getElementById("hora-planetaria").innerText = currentData[1];
-  
-          let previousData = planetaryHours[planetaryHours.length - 1].split(" ");
-          document.getElementById("hora-anterior").innerText = previousData[0] + " " + previousData[1];
-  
-          let nextData = planetaryHours[1].split(" ");
-          document.getElementById("proxima-hora").innerText = nextData[0] + " " + nextData[1];
-  
-          startCronometro(nextInterval);
-        }
+        startCronometro(allHoursEnd[0]);
       }
     }
     
