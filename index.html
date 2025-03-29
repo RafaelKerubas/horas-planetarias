@@ -6,7 +6,7 @@
   <title>Horas Planetárias</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: Arial, sans-serif;
       text-align: center;
       background: linear-gradient(to bottom, #1a1a2e, #0f3460);
       color: #fff;
@@ -31,7 +31,6 @@
       padding: 15px;
       background: rgba(15, 52, 96, 0.8);
       border-radius: 5px;
-      transition: all 0.3s ease-in-out;
     }
     .tempo-restante,
     .adjacent-hours {
@@ -48,7 +47,6 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: background 0.3s ease-in-out;
     }
     .button:hover {
       background-color: #ffcc29;
@@ -82,6 +80,11 @@
   </div>
   
   <script>
+    // Mapeamento dos dias planetários:
+    // 0: domingo (Sol), 1: segunda (Lua), 2: terça (Marte), 3: quarta (Mercúrio),
+    // 4: quinta (Júpiter), 5: sexta (Vênus), 6: sábado (Saturno)
+    const planetaryDayMapping = ["☉ Sol", "☽ Lua", "♂ Marte", "☿ Mercúrio", "♃ Júpiter", "♀ Vênus", "♄ Saturno"];
+  
     function getLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition, showError);
@@ -124,7 +127,7 @@
         .then(data => {
           let sunrise = new Date(data.daily.sunrise[0]);
           let sunset = new Date(data.daily.sunset[0]);
-          // Para o próximo nascer do sol, assumimos 24h após o de hoje
+          // nextSunrise é 24h após o nascer de hoje
           let nextSunrise = new Date(sunrise.getTime() + 24 * 60 * 60 * 1000);
   
           let sunriseFormatted = sunrise.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -142,67 +145,81 @@
     }
   
     function calculatePlanetaryHours(sunrise, sunset, nextSunrise) {
-      // Ordem dos planetas conforme a tradição caldeia
-      let planets = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
       let today = new Date();
-      let weekday = today.getDay(); // 0 = domingo, 1 = segunda, etc.
-      // O planeta regente da primeira hora do dia segue a sequência:
-      // Domingo: Sol, Segunda: Lua, Terça: Marte, Quarta: Mercúrio, Quinta: Júpiter, Sexta: Vênus, Sábado: Saturno.
-      let planetaryDay = ["☉ Sol", "☽ Lua", "♂ Marte", "☿ Mercúrio", "♃ Júpiter", "♀ Vênus", "♄ Saturno"][weekday];
-      document.getElementById("dia-planetario").innerText = planetaryDay;
+      let currentTime = today;
+      let startIndex; // índice do dia para definir a sequência planetária
   
-      // Calcula as durações das horas do dia e da noite
+      // Se for antes do nascer, usamos os horários do dia anterior
+      if (currentTime < sunrise) {
+        let prevSunrise = new Date(sunrise.getTime() - 24 * 60 * 60 * 1000);
+        let prevSunset = new Date(sunset.getTime() - 24 * 60 * 60 * 1000);
+        nextSunrise = sunrise; // o próximo nascer é o de hoje
+        sunrise = prevSunrise;
+        sunset = prevSunset;
+        // Dia anterior: (today.getDay() + 6) % 7
+        startIndex = (today.getDay() + 6) % 7;
+      } else {
+        startIndex = today.getDay();
+      }
+  
+      // Calcula as durações das 12 horas diurnas e 12 noturnas
       let dayDuration = (sunset - sunrise) / 12;
       let nightDuration = (nextSunrise - sunset) / 12;
-      let currentTime = new Date();
   
-      let index, intervalStart, intervalEnd;
+      let intervalStart, intervalEnd;
+      let currentHourIndex; // índice 1-based (1 até 24)
   
       if (currentTime >= sunrise && currentTime < sunset) {
-        // Estamos no período diurno
-        index = Math.floor((currentTime - sunrise) / dayDuration);
-        intervalStart = new Date(sunrise.getTime() + index * dayDuration);
+        // Durante o dia: índice de 1 a 12
+        let h = Math.floor((currentTime - sunrise) / dayDuration); // 0 a 11
+        currentHourIndex = h + 1; // transforma para 1 a 12
+        intervalStart = new Date(sunrise.getTime() + h * dayDuration);
         intervalEnd = new Date(intervalStart.getTime() + dayDuration);
       } else if (currentTime >= sunset && currentTime < nextSunrise) {
-        // Estamos no período noturno
-        index = 12 + Math.floor((currentTime - sunset) / nightDuration);
-        intervalStart = new Date(sunset.getTime() + (index - 12) * nightDuration);
+        // Durante a noite: índice de 13 a 24
+        let h = Math.floor((currentTime - sunset) / nightDuration); // 0 a 11
+        currentHourIndex = 12 + h + 1; // transforma para 13 a 24
+        intervalStart = new Date(sunset.getTime() + h * nightDuration);
         intervalEnd = new Date(intervalStart.getTime() + nightDuration);
       } else if (currentTime < sunrise) {
-        // Antes do nascer do sol: usamos a última hora noturna do dia anterior
-        index = 23;
+        // Antes do nascer: considera a última hora (24)
+        currentHourIndex = 24;
         intervalEnd = sunrise;
         intervalStart = new Date(sunrise.getTime() - nightDuration);
       } else {
-        // Se por algum motivo for após o próximo nascer (normalmente não ocorrer)
-        index = 0;
+        // Caso incomum: após o próximo nascer (normalmente não ocorre)
+        currentHourIndex = 1;
         intervalStart = nextSunrise;
         intervalEnd = new Date(nextSunrise.getTime() + dayDuration);
       }
   
-      // Gera a sequência das 24 horas planetárias, iniciando com o planeta regente do dia
-      let firstPlanetIndex = planets.indexOf(planetaryDay);
+      // Gera a sequência de 24 horas planetárias a partir do planeta regente do dia
       let planetaryHours = [];
       for (let i = 0; i < 24; i++) {
-        planetaryHours.push(planets[(firstPlanetIndex + i) % 7]);
+        planetaryHours.push(planetaryDayMapping[(startIndex + i) % 7]);
       }
   
-      // Atualiza a interface com a hora atual, a anterior e a próxima (exibindo ícone e nome)
-      let currentPlanet = planetaryHours[index].split(" ");
-      document.getElementById("planet-icon").innerText = currentPlanet[0];
-      document.getElementById("hora-planetaria").innerText = currentPlanet[1];
+      // Atualiza os elementos da interface usando índice 1-based:
+      // O planeta atual é o elemento no array na posição currentHourIndex - 1.
+      let currentPlanet = planetaryHours[currentHourIndex - 1];
+      let parts = currentPlanet.split(" ");
+      document.getElementById("planet-icon").innerText = parts[0];
+      document.getElementById("hora-planetaria").innerText = parts.slice(1).join(" ");
   
-      let previousPlanet = planetaryHours[(index - 1 + 24) % 24].split(" ");
-      document.getElementById("hora-anterior").innerText = previousPlanet[0] + " " + previousPlanet[1];
+      // Hora anterior: (currentHourIndex - 1), mas convertendo para 0-based
+      let previousPlanet = planetaryHours[(currentHourIndex - 2 + 24) % 24];
+      let partsPrev = previousPlanet.split(" ");
+      document.getElementById("hora-anterior").innerText = partsPrev[0] + " " + partsPrev.slice(1).join(" ");
   
-      let nextPlanet = planetaryHours[(index + 1) % 24].split(" ");
-      document.getElementById("proxima-hora").innerText = nextPlanet[0] + " " + nextPlanet[1];
+      // Próxima hora: (currentHourIndex + 1)
+      let nextPlanet = planetaryHours[(currentHourIndex) % 24];
+      let partsNext = nextPlanet.split(" ");
+      document.getElementById("proxima-hora").innerText = partsNext[0] + " " + partsNext.slice(1).join(" ");
   
-      // Inicia o cronômetro para o término do intervalo da hora planetária atual
+      // Inicia o cronômetro para o fim do intervalo da hora atual
       startCronometro(intervalEnd);
     }
   
-    // Função que atualiza o cronômetro com o tempo restante no intervalo atual
     function startCronometro(endTime) {
       if (window.cronometroInterval) clearInterval(window.cronometroInterval);
   
@@ -218,7 +235,7 @@
           const hours = Math.floor(totalSeconds / 3600);
           const minutes = Math.floor((totalSeconds % 3600) / 60);
           const seconds = totalSeconds % 60;
-          const formatted = 
+          const formatted =
             (hours < 10 ? "0" + hours : hours) + ":" +
             (minutes < 10 ? "0" + minutes : minutes) + ":" +
             (seconds < 10 ? "0" + seconds : seconds);
