@@ -26,6 +26,7 @@
       color: #f8b400;
       margin-bottom: 10px;
     }
+    /* Molduras para os campos */
     .planet-info {
       margin: 20px 0;
       padding: 15px;
@@ -71,6 +72,7 @@
     <!-- Moldura 1: Planeta Regente -->
     <div class="planet-info" id="dia-planetario-container">
       <h2>Planeta Regente: <span id="dia-planetario">...</span></h2>
+      <!-- Day-definition logo abaixo do título -->
       <p class="day-definition" id="day-definition">( )</p>
       <p class="tempo-restante" id="tempo-timers">
         <span id="tempo-passado">O Sol nasceu há: --:--:--</span> | 
@@ -189,7 +191,7 @@
           "Hora de aborrecimento e inimizade"                                   // 24ª
         ]
       }
-      // Outras configurações podem ser adicionadas conforme necessário
+      // Outras configurações para os demais dias podem ser adicionadas conforme necessário
     };
   
     function getLocation() {
@@ -397,11 +399,11 @@
       }, 1000);
     }
   
-    // Atualiza as informações lunares usando Open-Meteo Astronomy
+    // Atualiza informações lunares usando Open-Meteo Astronomy com data.
+    // Como a fase da lua é um evento global, usamos lat=0 e lon=0.
     function updateMoonInfo(lat, lon) {
-      const date = new Date().toISOString().split("T")[0];
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // fuso horário do usuário
-      const url = `https://api.open-meteo.com/v1/astronomy?latitude=${lat}&longitude=${lon}&date=${date}&timezone=${timezone}`;
+      const date = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+      const url = `https://api.open-meteo.com/v1/astronomy?latitude=0&longitude=0&date=${date}&timezone=UTC`;
       fetch(url)
         .then(response => response.json())
         .then(data => {
