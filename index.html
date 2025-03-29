@@ -28,7 +28,7 @@
       color: #f8b400;
       margin-bottom: 10px;
     }
-    /* Base para os módulos: todos com margin-bottom de 5px */
+    /* Base para os módulos */
     .planet-info {
       padding: 15px;
       background: rgba(15, 52, 96, 0.8);
@@ -40,11 +40,10 @@
       font-size: 0.8em;
       margin-top: 5px;
     }
-    /* Reduzir o espaçamento entre parágrafos dentro do kit */
+    /* Reduzir espaçamento entre parágrafos no Kit Planetário */
     #kit-content p {
       margin: 2px 0;
     }
-    /* Linha com duas colunas */
     .row {
       display: flex;
       gap: 5px;
@@ -52,7 +51,6 @@
       justify-content: space-between;
       margin: 5px 0;
     }
-    /* Módulo Hora Planetária Atual com margin-top e margin-bottom de 5px */
     #hora-planetaria-container {
       margin-top: 5px;
       margin-bottom: 5px;
@@ -86,7 +84,7 @@
     #lua-eclipse {
       margin-top: 5px;
     }
-    /* Container para o botão com margin-top de 10px */
+    /* Container para o botão */
     .button-container {
       margin-top: 10px;
     }
@@ -109,6 +107,10 @@
     #city-name {
       font-weight: bold;
     }
+    /* Oculta os módulos até a localização ser detectada */
+    #info-all {
+      display: none;
+    }
     @media (max-width: 768px) {
       .container {
         width: 95%;
@@ -125,63 +127,69 @@
 </head>
 <body>
   <div class="container">
+    <!-- Cabeçalho fixo e mensagem introdutória -->
     <h1>Horas Planetárias</h1>
     <p>Confira o dia e a hora planetária atual baseado na sua localização.</p>
     
-    <!-- Módulo Planeta Regente -->
-    <div class="planet-info" id="dia-planetario-container">
-      <h2>Planeta Regente: <span id="dia-planetario">...</span></h2>
-      <p class="day-definition" id="day-definition">( )</p>
-      <p class="tempo-restante" id="tempo-timers">
-        <span id="tempo-passado">O Sol nasceu há: --:--:--</span> | 
-        <span id="tempo-ate-pôr">O Sol se põe em: --:--:--</span>
-      </p>
-    </div>
-    
-    <!-- Módulo Kit Planetário de hoje -->
-    <div class="planet-info" id="kit-planetario-container">
-      <h2>Kit Planetário de hoje</h2>
-      <div id="kit-content">Carregando...</div>
-    </div>
-    
-    <!-- Linha com duas colunas: Informações adicionais e A Lua Hoje -->
-    <div class="row">
-      <!-- Módulo Informações adicionais -->
-      <div class="planet-info col" id="info-container">
-        <h2 id="info-title">...</h2>
-        <p id="info-message"></p>
-      </div>
-      <!-- Módulo A Lua Hoje -->
-      <div class="planet-info col" id="lua-info-container">
-        <h2>A Lua Hoje</h2>
-        <div class="lua-details">
-          <div id="lua-icon">--</div>
-          <div id="lua-data">
-            <div id="lua-sign">Signo: --</div>
-            <div id="lua-eclipse"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Módulo Hora Planetária Atual -->
-    <div class="planet-info" id="hora-planetaria-container">
-      <h2>Hora Planetária Atual: <span id="planet-icon">🔆</span> <span id="hora-planetaria"></span></h2>
-      <p class="tempo-restante">Tempo Restante: <span id="cronometro">--:--:--</span></p>
-      <p class="adjacent-hours">
-        Hora Anterior: <span id="hora-anterior">...</span> | Próxima Hora: <span id="proxima-hora">...</span>
-      </p>
-    </div>
-    
-    <!-- Container para o botão com margem superior de 10px -->
+    <!-- Botão Detectar Localização (sempre visível) -->
     <div class="button-container">
       <button class="button" onclick="getLocation()">Detectar Localização</button>
     </div>
-    <p id="location-status">Localização não detectada.</p>
-    <p id="city-name">Cidade não detectada.</p>
-    <p id="sunrise-sunset">
-      Nascer do Sol: <span id="sunrise-time">--:--</span> | Pôr do Sol: <span id="sunset-time">--:--</span>
-    </p>
+    
+    <!-- Bloco com os demais módulos, inicialmente oculto -->
+    <div id="info-all">
+      <!-- Módulo Planeta Regente -->
+      <div class="planet-info" id="dia-planetario-container">
+        <h2>Planeta Regente: <span id="dia-planetario">...</span></h2>
+        <p class="day-definition" id="day-definition">( )</p>
+        <p class="tempo-restante" id="tempo-timers">
+          <span id="tempo-passado">O Sol nasceu há: --:--:--</span> | 
+          <span id="tempo-ate-pôr">O Sol se põe em: --:--:--</span>
+        </p>
+      </div>
+      
+      <!-- Módulo Kit Planetário de hoje -->
+      <div class="planet-info" id="kit-planetario-container">
+        <h2>Kit Planetário de hoje</h2>
+        <div id="kit-content">Carregando...</div>
+      </div>
+      
+      <!-- Linha com duas colunas: Informações adicionais e A Lua Hoje -->
+      <div class="row">
+        <!-- Módulo Informações adicionais -->
+        <div class="planet-info col" id="info-container">
+          <h2 id="info-title">...</h2>
+          <p id="info-message"></p>
+        </div>
+        <!-- Módulo A Lua Hoje -->
+        <div class="planet-info col" id="lua-info-container">
+          <h2>A Lua Hoje</h2>
+          <div class="lua-details">
+            <div id="lua-icon">--</div>
+            <div id="lua-data">
+              <div id="lua-sign">Signo: --</div>
+              <div id="lua-eclipse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Módulo Hora Planetária Atual -->
+      <div class="planet-info" id="hora-planetaria-container">
+        <h2>Hora Planetária Atual: <span id="planet-icon">🔆</span> <span id="hora-planetaria"></span></h2>
+        <p class="tempo-restante">Tempo Restante: <span id="cronometro">--:--:--</span></p>
+        <p class="adjacent-hours">
+          Hora Anterior: <span id="hora-anterior">...</span> | Próxima Hora: <span id="proxima-hora">...</span>
+        </p>
+      </div>
+      
+      <!-- Dados extras: Cidade e Horários -->
+      <p id="location-status">Localização não detectada.</p>
+      <p id="city-name">Cidade não detectada.</p>
+      <p id="sunrise-sunset">
+        Nascer do Sol: <span id="sunrise-time">--:--</span> | Pôr do Sol: <span id="sunset-time">--:--</span>
+      </p>
+    </div>
   </div>
   
   <script>
@@ -336,7 +344,8 @@
       getSunTimes(lat, lon);
       getCityName(lat, lon);
       updateMoonInfo(lat, lon);
-      // O módulo Kit Planetário será atualizado dentro de calculatePlanetaryHours
+      // Os demais módulos serão revelados abaixo
+      document.getElementById("info-all").style.display = "block";
     }
 
     function getCityName(lat, lon) {
@@ -576,7 +585,7 @@
       if (currentEvent) {
         let signName = extractSign(currentEvent.info);
         if (todayStr === currentEvent.date) {
-          // No dia do evento, exibe o evento completo
+          // Se for o dia exato do evento, exibe o evento completo
           let dashIndex = currentEvent.info.indexOf("–");
           if (dashIndex !== -1) {
             let eclipseInfo = currentEvent.info.substring(dashIndex + 1).trim();
