@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Horas Planetárias</title>
+  <!-- Incluir SunCalc via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -71,6 +73,7 @@
     <!-- Moldura 1: Planeta Regente -->
     <div class="planet-info" id="dia-planetario-container">
       <h2>Planeta Regente: <span id="dia-planetario">...</span></h2>
+      <!-- Day-definition logo abaixo do título -->
       <p class="day-definition" id="day-definition">( )</p>
       <p class="tempo-restante" id="tempo-timers">
         <span id="tempo-passado">O Sol nasceu há: --:--:--</span> | 
@@ -206,7 +209,7 @@
       let lon = position.coords.longitude;
       getSunTimes(lat, lon);
       getCityName(lat, lon);
-      updateMoonInfo(lat, lon); // Agora usando os valores reais de latitude e longitude
+      updateMoonInfo(lat, lon);
     }
   
     function getCityName(lat, lon) {
@@ -397,54 +400,40 @@
       }, 1000);
     }
   
-    // Atualiza informações lunares usando o endpoint Astronomy do Open‑Meteo com data.
-    // Agora, usamos os valores de latitude e longitude do usuário.
+    // Atualiza informações lunares usando SunCalc (usando os valores de lat e lon fornecidos)
     function updateMoonInfo(lat, lon) {
-      const date = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-      const url = `https://api.open-meteo.com/v1/astronomy?latitude=${lat}&longitude=${lon}&date=${date}&timezone=auto`;
-      fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          if (!data.astronomy || !data.astronomy.astro) {
-            throw new Error("Dados astronômicos não encontrados");
-          }
-          const astro = data.astronomy.astro;
-          const moonPhaseValue = parseFloat(astro.moon_phase);
-          let phaseName = "";
-          let phaseIcon = "";
-          if (moonPhaseValue < 0.125) {
-            phaseName = "New Moon";
-            phaseIcon = "🌑";
-          } else if (moonPhaseValue < 0.25) {
-            phaseName = "Waxing Crescent";
-            phaseIcon = "🌒";
-          } else if (moonPhaseValue < 0.375) {
-            phaseName = "First Quarter";
-            phaseIcon = "🌓";
-          } else if (moonPhaseValue < 0.5) {
-            phaseName = "Waxing Gibbous";
-            phaseIcon = "🌔";
-          } else if (moonPhaseValue < 0.625) {
-            phaseName = "Full Moon";
-            phaseIcon = "🌕";
-          } else if (moonPhaseValue < 0.75) {
-            phaseName = "Waning Gibbous";
-            phaseIcon = "🌖";
-          } else if (moonPhaseValue < 0.875) {
-            phaseName = "Last Quarter";
-            phaseIcon = "🌗";
-          } else {
-            phaseName = "Waning Crescent";
-            phaseIcon = "🌘";
-          }
-          document.getElementById("lua-phase").innerText = "Fase da Lua: " + phaseIcon + " " + phaseName;
-          document.getElementById("lua-sign").innerText = "Signo Luar: --";
-        })
-        .catch(error => {
-          console.error("Erro ao obter informações lunares:", error);
-          document.getElementById("lua-phase").innerText = "Fase da Lua: Erro";
-          document.getElementById("lua-sign").innerText = "Signo Luar: Erro";
-        });
+      // Obter a iluminação lunar (fase) para a data atual
+      const moonIllum = SunCalc.getMoonIllumination(new Date());
+      const phase = moonIllum.phase; // valor entre 0 e 1
+      let phaseName = "";
+      let phaseIcon = "";
+      if (phase < 0.0625 || phase >= 0.9375) {
+        phaseName = "New Moon";
+        phaseIcon = "🌑";
+      } else if (phase < 0.1875) {
+        phaseName = "Waxing Crescent";
+        phaseIcon = "🌒";
+      } else if (phase < 0.3125) {
+        phaseName = "First Quarter";
+        phaseIcon = "🌓";
+      } else if (phase < 0.4375) {
+        phaseName = "Waxing Gibbous";
+        phaseIcon = "🌔";
+      } else if (phase < 0.5625) {
+        phaseName = "Full Moon";
+        phaseIcon = "🌕";
+      } else if (phase < 0.6875) {
+        phaseName = "Waning Gibbous";
+        phaseIcon = "🌖";
+      } else if (phase < 0.8125) {
+        phaseName = "Last Quarter";
+        phaseIcon = "🌗";
+      } else {
+        phaseName = "Waning Crescent";
+        phaseIcon = "🌘";
+      }
+      document.getElementById("lua-phase").innerText = "Fase da Lua: " + phaseIcon + " " + phaseName;
+      document.getElementById("lua-sign").innerText = "Signo Luar: --";
     }
   </script>
   
