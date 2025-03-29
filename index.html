@@ -26,7 +26,6 @@
       color: #f8b400;
       margin-bottom: 10px;
     }
-    /* Molduras para os campos */
     .planet-info {
       margin: 20px 0;
       padding: 15px;
@@ -51,11 +50,9 @@
     .button:hover {
       background-color: #ffcc29;
     }
-    /* Oculta o status de localização */
     #location-status {
       display: none;
     }
-    /* Cidade e estado em negrito */
     #city-name {
       font-weight: bold;
     }
@@ -281,33 +278,38 @@
       "Sábado": {
         sequence: ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Hélios/Sol", "♀ Afrodite/Vênus", "☿ Hermes/Mercúrio", "☽ Selene/Lua"],
         messages: [
-          "Magia ou talismãs para ferir seu inimigo ou enviar doenças",
-          "Pode causar um naufrágio ou prejudicar alguém",
-          "Para configurar encantamentos",
-          "Pode fazer os senhores lutarem entre si",
-          "Pode causar ódio entre um casal",
-          "Pode encontrar o tesouro",
-          "Pode falar com demônios",
-          "Para realizar a adivinhação da bacia",
-          "Para realizar a adivinhação do crânio",
-          "Pode fazer com que os povos mergulhem no mar",
-          "Pode deixar os litigantes furiosos uns com os outros",
-          "Pode causar medo e inimizade",
-          "Benéfico para descobrir segredos",
-          "Pode ver pessoas mortas",
-          "Para ter visões – Para adivinhação de água",
-          "Útil para ensinar",
-          "hora muito maligna",
-          "hora inútil",
-          "Para ganhar dinheiro em dados",
-          "Pode conter todas as coisas boas",
-          "Hora sem virtude",
-          "Pode causar visões",
-          "Útil para lucro",
-          "Hora de aborrecimento e inimizade"
+          "Magia ou talismãs para ferir seu inimigo ou enviar doenças",       // 1ª
+          "Pode causar um naufrágio ou prejudicar alguém",                      // 2ª
+          "Para configurar encantamentos",                                      // 3ª
+          "Pode fazer os senhores lutarem entre si",                           // 4ª
+          "Pode causar ódio entre um casal",                                    // 5ª
+          "Pode encontrar o tesouro",                                           // 6ª
+          "Pode falar com demônios",                                             // 7ª
+          "Para realizar a adivinhação da bacia",                               // 8ª
+          "Para realizar a adivinhação do crânio",                                // 9ª
+          "Pode fazer com que os povos mergulhem no mar",                        // 10ª
+          "Pode deixar os litigantes furiosos uns com os outros",                // 11ª
+          "Pode causar medo e inimizade",                                       // 12ª
+          "Benéfico para descobrir segredos",                                  // 13ª
+          "Pode ver pessoas mortas",                                            // 14ª
+          "Para ter visões – Para adivinhação de água",                          // 15ª
+          "Útil para ensinar",                                                  // 16ª
+          "hora muito maligna",                                                 // 17ª
+          "hora inútil",                                                        // 18ª
+          "Para ganhar dinheiro em dados",                                      // 19ª
+          "Pode conter todas as coisas boas",                                   // 20ª
+          "Hora sem virtude",                                                   // 21ª
+          "Pode causar visões",                                                 // 22ª
+          "Útil para lucro",                                                    // 23ª
+          "Hora de aborrecimento e inimizade"                                   // 24ª
         ]
       }
     };
+  
+    // Variáveis globais para armazenar os horários do dia
+    window.sunrise = null;
+    window.sunset = null;
+    window.nextSunrise = null;
   
     function getLocation() {
       if (navigator.geolocation) {
@@ -318,104 +320,4 @@
     }
   
     function showPosition(position) {
-      document.getElementById("location-status").innerText = "Localização detectada.";
-      let lat = position.coords.latitude;
-      let lon = position.coords.longitude;
-      getSunTimes(lat, lon);
-      getCityName(lat, lon);
-    }
-  
-    function getCityName(lat, lon) {
-      let url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
-      fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          let city = data.address.city || data.address.town || data.address.village || "Cidade desconhecida";
-          let state = data.address.state || "Estado desconhecido";
-          document.getElementById("city-name").innerText = `Cidade: ${city}, ${state}`;
-        })
-        .catch(error => {
-          console.error("Erro ao obter o nome da cidade:", error);
-          document.getElementById("city-name").innerText = "Erro ao obter a cidade.";
-        });
-    }
-  
-    function showError(error) {
-      document.getElementById("location-status").innerText = "Erro ao obter localização.";
-    }
-  
-    function getSunTimes(lat, lon) {
-      let url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=sunrise,sunset&timezone=auto`;
-      fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          let sunrise = new Date(data.daily.sunrise[0]);
-          let sunset = new Date(data.daily.sunset[0]);
-          let nextSunrise = new Date(sunrise.getTime() + 24 * 60 * 60 * 1000);
-  
-          let sunriseFormatted = sunrise.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-          let sunsetFormatted = sunset.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-          document.getElementById("sunrise-time").innerText = sunriseFormatted;
-          document.getElementById("sunset-time").innerText = sunsetFormatted;
-  
-          calculatePlanetaryHours(sunrise, sunset, nextSunrise);
-          startElapsedTimeTimer(sunrise, sunset);
-          startTimeUntilSunset(sunset, nextSunrise);
-        })
-        .catch(error => {
-          console.error("Erro ao obter horários do sol:", error);
-          document.getElementById("sunrise-time").innerText = "Erro";
-          document.getElementById("sunset-time").innerText = "Erro";
-        });
-    }
-  
-    function calculatePlanetaryHours(sunrise, sunset, nextSunrise) {
-      let today = new Date();
-      let currentTime = today;
-      let startDayIndex;
-  
-      if (currentTime < sunrise) {
-        let prevSunrise = new Date(sunrise.getTime() - 24 * 60 * 60 * 1000);
-        let prevSunset = new Date(sunset.getTime() - 24 * 60 * 60 * 1000);
-        nextSunrise = sunrise;
-        sunrise = prevSunrise;
-        sunset = prevSunset;
-        startDayIndex = (today.getDay() + 6) % 7;
-      } else {
-        startDayIndex = today.getDay();
-      }
-  
-      document.getElementById("dia-planetario").innerText = firstHourMapping[startDayIndex];
-  
-      let config = dayConfigurations[dayNames[startDayIndex]];
-  
-      let planetaryHours = [];
-      if (config && config.sequence) {
-        for (let i = 0; i < 24; i++) {
-          planetaryHours.push(config.sequence[i % config.sequence.length]);
-        }
-      } else {
-        let firstHourPlanet = firstHourMapping[startDayIndex];
-        let icon = firstHourPlanet.charAt(0);
-        let firstHourIndex = chaldeanOrder.findIndex(el => el.startsWith(icon));
-        for (let i = 0; i < 24; i++) {
-          planetaryHours.push(chaldeanOrder[(firstHourIndex + i) % 7]);
-        }
-      }
-  
-      let dayDuration = (sunset - sunrise) / 12;
-      let nightDuration = (nextSunrise - sunset) / 12;
-  
-      let intervalStart, intervalEnd;
-      let currentHourIndex;
-  
-      if (currentTime >= sunrise && currentTime < sunset) {
-        let h = Math.floor((currentTime - sunrise) / dayDuration);
-        currentHourIndex = h + 1;
-        intervalStart = new Date(sunrise.getTime() + h * dayDuration);
-        intervalEnd = new Date(intervalStart.getTime() + dayDuration);
-      } else if (currentTime >= sunset && currentTime < nextSunrise) {
-        let h = Math.floor((currentTime - sunset) / nightDuration);
-        currentHourIndex = 12 + h + 1;
-        intervalStart = new Date(sunset.getTime() + h * nightDuration);
-        intervalEnd =
+      document.getElementById("location-status").
