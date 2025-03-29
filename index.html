@@ -35,8 +35,8 @@
     }
     .tempo-restante,
     .adjacent-hours {
-      color: #f8b400; /* mesma cor da Hora Planetária Atual */
-      font-size: 0.8em; /* fonte menor */
+      color: #f8b400;
+      font-size: 0.8em;
       margin-top: 5px;
     }
     .button {
@@ -86,21 +86,20 @@
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition, showError);
       } else {
-        document.getElementById("location-status").innerHTML = "Geolocalização não suportada pelo navegador.";
+        document.getElementById("location-status").innerText = "Geolocalização não suportada pelo navegador.";
       }
     }
   
     function showPosition(position) {
       let lat = position.coords.latitude;
       let lon = position.coords.longitude;
-      document.getElementById("location-status").innerHTML = `Latitude: ${lat}, Longitude: ${lon}`;
+      document.getElementById("location-status").innerText = `Latitude: ${lat}, Longitude: ${lon}`;
       getSunTimes(lat, lon);
       getCityName(lat, lon);
     }
-    
+  
     function getCityName(lat, lon) {
       let url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
-  
       fetch(url)
         .then(response => response.json())
         .then(data => {
@@ -113,26 +112,23 @@
           document.getElementById("city-name").innerText = "Erro ao obter a cidade.";
         });
     }
-    
+  
     function showError(error) {
-      document.getElementById("location-status").innerHTML = "Erro ao obter localização.";
+      document.getElementById("location-status").innerText = "Erro ao obter localização.";
     }
   
     function getSunTimes(lat, lon) {
       let url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=sunrise,sunset&timezone=auto`;
-  
       fetch(url)
         .then(response => response.json())
         .then(data => {
           let sunrise = new Date(data.daily.sunrise[0]);
           let sunset = new Date(data.daily.sunset[0]);
-          // Calcula o próximo nascer do sol (do dia seguinte)
+          // Para o próximo nascer do sol, assumimos 24h após o de hoje
           let nextSunrise = new Date(sunrise.getTime() + 24 * 60 * 60 * 1000);
   
-          // Formata os horários para exibição
           let sunriseFormatted = sunrise.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
           let sunsetFormatted = sunset.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  
           document.getElementById("sunrise-time").innerText = sunriseFormatted;
           document.getElementById("sunset-time").innerText = sunsetFormatted;
   
@@ -146,98 +142,74 @@
     }
   
     function calculatePlanetaryHours(sunrise, sunset, nextSunrise) {
-      // Ordem dos planetas na tradição caldeia
+      // Ordem dos planetas conforme a tradição caldeia
       let planets = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
       let today = new Date();
       let weekday = today.getDay(); // 0 = domingo, 1 = segunda, etc.
-      // O primeiro planeta do dia é definido conforme a sequência:
-      // Domingo: Sol, Segunda: Lua, Terça: Marte, Quarta: Mercúrio, Quinta: Júpiter, Sexta: Vênus, Sábado: Saturno
+      // O planeta regente da primeira hora do dia segue a sequência:
+      // Domingo: Sol, Segunda: Lua, Terça: Marte, Quarta: Mercúrio, Quinta: Júpiter, Sexta: Vênus, Sábado: Saturno.
       let planetaryDay = ["☉ Sol", "☽ Lua", "♂ Marte", "☿ Mercúrio", "♃ Júpiter", "♀ Vênus", "♄ Saturno"][weekday];
       document.getElementById("dia-planetario").innerText = planetaryDay;
   
-      // Divisão do dia em 24 horas planetárias:
-      // - Do nascer do sol até o pôr do sol: 12 horas do dia.
-      // - Do pôr do sol até o próximo nascer do sol: 12 horas da noite.
-      let dayHours = [];
-      let nightHours = [];
-  
+      // Calcula as durações das horas do dia e da noite
       let dayDuration = (sunset - sunrise) / 12;
       let nightDuration = (nextSunrise - sunset) / 12;
+      let currentTime = new Date();
   
-      // Horários de início das horas do dia (12 elementos)
-      for (let i = 0; i < 12; i++) {
-        dayHours.push(new Date(sunrise.getTime() + i * dayDuration));
-      }
-      // Horários de início das horas da noite (12 elementos)
-      for (let i = 0; i < 12; i++) {
-        nightHours.push(new Date(sunset.getTime() + i * nightDuration));
+      let index, intervalStart, intervalEnd;
+  
+      if (currentTime >= sunrise && currentTime < sunset) {
+        // Estamos no período diurno
+        index = Math.floor((currentTime - sunrise) / dayDuration);
+        intervalStart = new Date(sunrise.getTime() + index * dayDuration);
+        intervalEnd = new Date(intervalStart.getTime() + dayDuration);
+      } else if (currentTime >= sunset && currentTime < nextSunrise) {
+        // Estamos no período noturno
+        index = 12 + Math.floor((currentTime - sunset) / nightDuration);
+        intervalStart = new Date(sunset.getTime() + (index - 12) * nightDuration);
+        intervalEnd = new Date(intervalStart.getTime() + nightDuration);
+      } else if (currentTime < sunrise) {
+        // Antes do nascer do sol: usamos a última hora noturna do dia anterior
+        index = 23;
+        intervalEnd = sunrise;
+        intervalStart = new Date(sunrise.getTime() - nightDuration);
+      } else {
+        // Se por algum motivo for após o próximo nascer (normalmente não ocorrer)
+        index = 0;
+        intervalStart = nextSunrise;
+        intervalEnd = new Date(nextSunrise.getTime() + dayDuration);
       }
   
-      // Combina para obter 24 horários de início
-      let allHours = dayHours.concat(nightHours);
-      // Cria um array com os horários finais de cada hora (última hora termina no próximo nascer do sol)
-      let allHoursEnd = [];
-      for (let i = 0; i < allHours.length - 1; i++) {
-        allHoursEnd.push(allHours[i+1]);
-      }
-      allHoursEnd.push(nextSunrise);
-  
-      // Define a sequência dos 24 planetas para o dia, iniciando com o planeta regente da primeira hora
+      // Gera a sequência das 24 horas planetárias, iniciando com o planeta regente do dia
       let firstPlanetIndex = planets.indexOf(planetaryDay);
       let planetaryHours = [];
       for (let i = 0; i < 24; i++) {
         planetaryHours.push(planets[(firstPlanetIndex + i) % 7]);
       }
   
-      // Identifica a hora planetária atual e calcula o tempo restante para o final desse intervalo
-      let currentTime = new Date();
-      let found = false;
-      for (let i = 0; i < 24; i++) {
-        let start = allHours[i];
-        let end = allHoursEnd[i];
-        if (currentTime >= start && currentTime < end) {
-          // Atualiza a hora atual na interface
-          let currentPlanet = planetaryHours[i].split(" ");
-          document.getElementById("planet-icon").innerText = currentPlanet[0];
-          document.getElementById("hora-planetaria").innerText = currentPlanet[1];
+      // Atualiza a interface com a hora atual, a anterior e a próxima (exibindo ícone e nome)
+      let currentPlanet = planetaryHours[index].split(" ");
+      document.getElementById("planet-icon").innerText = currentPlanet[0];
+      document.getElementById("hora-planetaria").innerText = currentPlanet[1];
   
-          // Hora anterior e próxima hora (exibindo ícone e nome)
-          let previousPlanet = planetaryHours[(i - 1 + 24) % 24].split(" ");
-          document.getElementById("hora-anterior").innerText = previousPlanet[0] + " " + previousPlanet[1];
+      let previousPlanet = planetaryHours[(index - 1 + 24) % 24].split(" ");
+      document.getElementById("hora-anterior").innerText = previousPlanet[0] + " " + previousPlanet[1];
   
-          let nextPlanet = planetaryHours[(i + 1) % 24].split(" ");
-          document.getElementById("proxima-hora").innerText = nextPlanet[0] + " " + nextPlanet[1];
+      let nextPlanet = planetaryHours[(index + 1) % 24].split(" ");
+      document.getElementById("proxima-hora").innerText = nextPlanet[0] + " " + nextPlanet[1];
   
-          // Inicia o cronômetro para o fim do intervalo da hora planetária atual
-          startCronometro(end);
-          found = true;
-          break;
-        }
-      }
-      if (!found && currentTime < sunrise) {
-        // Caso o acesso seja antes do nascer do sol, usa a primeira hora do dia
-        let currentPlanet = planetaryHours[0].split(" ");
-        document.getElementById("planet-icon").innerText = currentPlanet[0];
-        document.getElementById("hora-planetaria").innerText = currentPlanet[1];
-  
-        let previousPlanet = planetaryHours[23].split(" ");
-        document.getElementById("hora-anterior").innerText = previousPlanet[0] + " " + previousPlanet[1];
-  
-        let nextPlanet = planetaryHours[1].split(" ");
-        document.getElementById("proxima-hora").innerText = nextPlanet[0] + " " + nextPlanet[1];
-  
-        startCronometro(allHoursEnd[0]);
-      }
+      // Inicia o cronômetro para o término do intervalo da hora planetária atual
+      startCronometro(intervalEnd);
     }
-    
-    // Função para iniciar e atualizar o cronômetro
+  
+    // Função que atualiza o cronômetro com o tempo restante no intervalo atual
     function startCronometro(endTime) {
       if (window.cronometroInterval) clearInterval(window.cronometroInterval);
-      
+  
       window.cronometroInterval = setInterval(() => {
         const now = new Date();
         const diff = endTime - now;
-        
+  
         if (diff <= 0) {
           document.getElementById("cronometro").innerText = "00:00:00";
           clearInterval(window.cronometroInterval);
@@ -246,12 +218,10 @@
           const hours = Math.floor(totalSeconds / 3600);
           const minutes = Math.floor((totalSeconds % 3600) / 60);
           const seconds = totalSeconds % 60;
-          
           const formatted = 
             (hours < 10 ? "0" + hours : hours) + ":" +
             (minutes < 10 ? "0" + minutes : minutes) + ":" +
             (seconds < 10 ? "0" + seconds : seconds);
-          
           document.getElementById("cronometro").innerText = formatted;
         }
       }, 1000);
