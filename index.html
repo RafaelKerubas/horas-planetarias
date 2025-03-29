@@ -7,28 +7,42 @@
   <!-- Inclusão da biblioteca SunCalc via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
   <style>
-    /* Base e layout geral */
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: linear-gradient(to bottom, #1a1a2e, #0f3460);
-      color: #fff;
+    /* Reset e definição de altura total para html e body */
+    html, body {
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      height: 100%;
     }
+    
+    /* O body agora ocupa 100vh e o fundo cobre toda a tela */
+    body {
+      min-height: 100vh;
+      background: linear-gradient(to bottom, #1a1a2e, #0f3460);
+      background-repeat: no-repeat;
+      background-attachment: fixed; /* Opcional: fixa o fundo ao rolar */
+      background-size: cover;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: flex-start; /* Alinha o conteúdo ao topo */
+      justify-content: center; /* Centraliza horizontalmente */
+      padding-top: 20px;       /* Espaço no topo */
+    }
+    
     .container {
       max-width: 90%;
       width: 600px;
-      margin: auto;
       padding: 20px;
       background: rgba(22, 33, 62, 0.9);
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
     }
+    
     h1, h2 {
       color: #f8b400;
       margin-bottom: 10px;
     }
+    
     /* Módulos com fade-in (aparecem com animação) */
     .planet-info {
       padding: 15px;
@@ -41,6 +55,7 @@
     .planet-info.visible {
       opacity: 1;
     }
+    
     .day-definition, #lua-data, #kit-content {
       color: #f8b400;
       font-size: 0.8em;
@@ -49,6 +64,7 @@
     #kit-content p {
       margin: 2px 0;
     }
+    
     .row {
       display: flex;
       gap: 5px;
@@ -69,6 +85,7 @@
       font-size: 0.8em;
       margin-top: 5px;
     }
+    
     /* Módulo "A Lua Hoje" */
     #lua-info-container {
       display: flex;
@@ -83,6 +100,7 @@
       width: 100%;
       text-align: left;
     }
+    
     /* Ícone da Lua com pseudo-elemento */
     #lua-icon {
       position: relative;
@@ -106,6 +124,7 @@
     #lua-eclipse {
       margin-top: 5px;
     }
+    
     /* Botões e containers */
     .button-container {
       margin-top: 10px;
@@ -132,10 +151,12 @@
       font-weight: bold;
       margin-top: 5px;
     }
+    
     /* Container dos módulos, inicialmente oculto */
     #info-all {
       display: none;
     }
+    
     @media (max-width: 600px) {
       #lua-icon {
         font-size: 1.5em;
@@ -157,6 +178,7 @@
         align-items: center;
       }
     }
+    
     /* Spinner de carregamento */
     #loading-spinner {
       display: none;
@@ -595,7 +617,7 @@
         const totalSeconds = Math.floor(diff / 1000);
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
+        const seconds = totalSeconds % 3600 % 60;
         const formatted =
           (hours < 10 ? "0" + hours : hours) + ":" +
           (minutes < 10 ? "0" + minutes : minutes) + ":" +
