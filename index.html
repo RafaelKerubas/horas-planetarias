@@ -7,6 +7,7 @@
   <!-- Inclusão da biblioteca SunCalc via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
   <style>
+    /* Base e layout geral */
     body {
       font-family: Arial, sans-serif;
       text-align: center;
@@ -28,19 +29,23 @@
       color: #f8b400;
       margin-bottom: 10px;
     }
-    /* Base para os módulos */
+    /* Módulos com fade-in (aparecem com animação) */
     .planet-info {
       padding: 15px;
       background: rgba(15, 52, 96, 0.8);
       border-radius: 5px;
       margin-bottom: 5px;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+    .planet-info.visible {
+      opacity: 1;
     }
     .day-definition, #lua-data, #kit-content {
       color: #f8b400;
       font-size: 0.8em;
       margin-top: 5px;
     }
-    /* Reduzir espaçamento entre parágrafos no Kit Planetário */
     #kit-content p {
       margin: 2px 0;
     }
@@ -78,7 +83,7 @@
       width: 100%;
       text-align: left;
     }
-    /* Contorno esmaecido para o ícone da Lua com pseudo-elemento */
+    /* Ícone da Lua com pseudo-elemento */
     #lua-icon {
       position: relative;
       display: inline-block;
@@ -94,14 +99,14 @@
       transform: translate(-50%, -50%);
       width: 1.2em;
       height: 1.2em;
-      background: rgba(255, 255, 255, 0.5); /* Esmaecido e leve */
+      background: rgba(255, 255, 255, 0.5);
       border-radius: 50%;
       z-index: -1;
     }
     #lua-eclipse {
       margin-top: 5px;
     }
-    /* Container para o botão */
+    /* Botões e containers */
     .button-container {
       margin-top: 10px;
     }
@@ -120,11 +125,14 @@
     }
     #location-status {
       display: none;
+      margin-top: 10px;
+      font-size: 0.9em;
     }
     #city-name {
       font-weight: bold;
+      margin-top: 5px;
     }
-    /* Oculta os módulos até a localização ser detectada */
+    /* Container dos módulos, inicialmente oculto */
     #info-all {
       display: none;
     }
@@ -149,20 +157,38 @@
         align-items: center;
       }
     }
+    /* Spinner de carregamento */
+    #loading-spinner {
+      display: none;
+      margin-top: 10px;
+    }
+    #loading-spinner p {
+      animation: pulsate 1.5s infinite;
+    }
+    @keyframes pulsate {
+      0% { opacity: 0.5; }
+      50% { opacity: 1; }
+      100% { opacity: 0.5; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Elementos iniciais visíveis -->
+    <!-- Elementos iniciais -->
     <h1>Horas Planetárias</h1>
     <p>Confira o dia e a hora planetária atual baseado na sua localização.</p>
     
-    <!-- Botão Detectar Localização (único) -->
+    <!-- Botão único para detectar localização -->
     <div class="button-container" id="button-top">
-      <button class="button" onclick="getLocation()">Detectar Localização</button>
+      <button class="button" onclick="getLocation()" aria-label="Detectar Localização">Detectar Localização</button>
+    </div>
+
+    <!-- Spinner de carregamento -->
+    <div id="loading-spinner" aria-live="polite">
+      <p>Carregando dados...</p>
     </div>
     
-    <!-- Bloco com os demais módulos, inicialmente oculto -->
+    <!-- Bloco dos módulos adicionais (inicialmente oculto) -->
     <div id="info-all">
       <!-- Módulo Planeta Regente -->
       <div class="planet-info" id="dia-planetario-container">
@@ -180,18 +206,16 @@
         <div id="kit-content">Carregando...</div>
       </div>
       
-      <!-- Linha com duas colunas: Informações adicionais e A Lua Hoje -->
+      <!-- Linha com Informações adicionais e A Lua Hoje -->
       <div class="row">
-        <!-- Módulo Informações adicionais -->
         <div class="planet-info col" id="info-container">
           <h2 id="info-title">...</h2>
           <p id="info-message"></p>
         </div>
-        <!-- Módulo A Lua Hoje -->
         <div class="planet-info col" id="lua-info-container">
           <h2>A Lua Hoje</h2>
           <div class="lua-details">
-            <div id="lua-icon">--</div>
+            <div id="lua-icon" aria-label="Fase da Lua">--</div>
             <div id="lua-data">
               <div id="lua-sign">Signo: --</div>
               <div id="lua-eclipse"></div>
@@ -209,20 +233,20 @@
         </p>
       </div>
       
-      <!-- Dados extras -->
-      <p id="location-status">Localização não detectada.</p>
-      <p id="city-name">Cidade não detectada.</p>
+      <!-- Informações extras -->
+      <p id="location-status" role="alert"></p>
+      <p id="city-name"></p>
       <p id="sunrise-sunset">
         Nascer do Sol: <span id="sunrise-time">--:--</span> | Pôr do Sol: <span id="sunset-time">--:--</span>
       </p>
       
-      <!-- Move o botão único para o final do conteúdo -->
+      <!-- Botão movido para o final -->
       <div class="button-container" id="button-bottom"></div>
     </div>
   </div>
   
   <script>
-    // Configurações gerais
+    // Configurações e mapeamentos
     const firstHourMapping = [
       "☉ Hélios/Sol",
       "☽ Selene/Lua",
@@ -254,7 +278,7 @@
           "Pode impedir um encontro com um senhor",
           "Pode comparecer perante um senhor",
           "Fazer nada",
-          "Para qualquer coisa sobre senores",
+          "Para qualquer coisa sobre senhores",
           "Para qualquer coisa sobre amor",
           "Pode escrever uma petição",
           "Pode fazer um discurso",
@@ -304,7 +328,7 @@
       }
     };
 
-    // Calendário Lunar de 2025
+    // Calendário Lunar
     const lunarCalendar = [
       { date: "2025-03-06", info: "Lua Crescente em Gêmeos, 6 de março, às 13h31 (horário de Brasília)" },
       { date: "2025-03-14", info: "Lua Cheia em Virgem – Eclipse Lunar, 14 de março, às 3h54" },
@@ -349,6 +373,7 @@
       { date: "2025-12-27", info: "Lua Crescente em Áries, 27 de dezembro, às 16h09" }
     ];
 
+    // Função auxiliar para formatar datas de eclipse
     function formatEclipseDate(dateStr) {
       const dateObj = new Date(dateStr);
       const day = dateObj.getUTCDate();
@@ -358,11 +383,24 @@
       return `${day} de ${month} de ${year}`;
     }
 
+    // Funções para exibir/ocultar o spinner de carregamento
+    function showSpinner() {
+      document.getElementById("loading-spinner").style.display = "block";
+    }
+    function hideSpinner() {
+      document.getElementById("loading-spinner").style.display = "none";
+    }
+
+    // Obtém a localização com tratamento de erros e feedback visual
     function getLocation() {
+      showSpinner();
+      document.getElementById("location-status").style.display = "block";
+      document.getElementById("location-status").innerText = "Detectando localização...";
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition, showError);
       } else {
         document.getElementById("location-status").innerText = "Geolocalização não suportada pelo navegador.";
+        hideSpinner();
       }
     }
 
@@ -373,10 +411,17 @@
       getSunTimes(lat, lon);
       getCityName(lat, lon);
       updateMoonInfo(lat, lon);
-      // Exibe os módulos adicionais
-      document.getElementById("info-all").style.display = "block";
-      // Move o botão único (id "button-top") para o final do conteúdo
+      // Exibe os módulos adicionais com animação de fade-in
+      const infoAll = document.getElementById("info-all");
+      infoAll.style.display = "block";
+      setTimeout(() => {
+        document.querySelectorAll(".planet-info").forEach(elem => {
+          elem.classList.add("visible");
+        });
+      }, 100);
+      // Move o botão único para o final do conteúdo
       document.getElementById("info-all").appendChild(document.getElementById("button-top"));
+      hideSpinner();
     }
 
     function getCityName(lat, lon) {
@@ -395,7 +440,23 @@
     }
 
     function showError(error) {
-      document.getElementById("location-status").innerText = "Erro ao obter localização.";
+      let errorMessage = "";
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          errorMessage = "Permissão de localização negada pelo usuário.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          errorMessage = "Informações de localização não disponíveis.";
+          break;
+        case error.TIMEOUT:
+          errorMessage = "Tempo de requisição esgotado.";
+          break;
+        default:
+          errorMessage = "Erro ao obter localização.";
+          break;
+      }
+      document.getElementById("location-status").innerText = errorMessage;
+      hideSpinner();
     }
 
     function getSunTimes(lat, lon) {
@@ -492,8 +553,6 @@
       } else {
         document.getElementById("info-message").innerText = "";
       }
-      
-      // Atualiza o módulo Kit Planetário de hoje após definir o planeta regente
       updateKitPlanetario();
     }
 
@@ -570,10 +629,7 @@
       }, 1000);
     }
 
-    // Atualiza informações lunares usando SunCalc.
-    // "lua-icon": exibe o ícone da fase.
-    // "lua-sign": se hoje for o dia do evento, exibe o evento completo (fase, signo, data e hora);
-    // caso contrário, exibe "fase em signo".
+    // Atualiza informações lunares utilizando SunCalc
     function updateMoonInfo(lat, lon) {
       const moonIllum = SunCalc.getMoonIllumination(new Date());
       const phase = moonIllum.phase;
@@ -616,7 +672,6 @@
       if (currentEvent) {
         let signName = extractSign(currentEvent.info);
         if (todayStr === currentEvent.date) {
-          // Se for o dia exato do evento, exibe o evento completo
           let dashIndex = currentEvent.info.indexOf("–");
           if (dashIndex !== -1) {
             let eclipseInfo = currentEvent.info.substring(dashIndex + 1).trim();
@@ -636,7 +691,7 @@
       }
     }
 
-    // Função auxiliar para extrair o nome do signo a partir do texto do evento
+    // Função auxiliar para extrair o nome do signo a partir do evento lunar
     function extractSign(info) {
       let lowerInfo = info.toLowerCase();
       let index = lowerInfo.indexOf(" em ");
