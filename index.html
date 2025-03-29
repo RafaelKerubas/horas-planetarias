@@ -78,7 +78,7 @@
       width: 100%;
       text-align: left;
     }
-    /* Atualização para contorno circular do ícone da Lua */
+    /* Atualização para contorno circular no ícone da Lua */
     #lua-icon {
       font-size: 2em;
       display: inline-block;
@@ -134,16 +134,14 @@
 </head>
 <body>
   <div class="container">
-    <!-- Conteúdo inicial -->
+    <!-- Elementos visíveis inicialmente -->
     <h1>Horas Planetárias</h1>
     <p>Confira o dia e a hora planetária atual baseado na sua localização.</p>
-    
-    <!-- Botão Detectar Localização -->
     <div class="button-container">
       <button class="button" onclick="getLocation()">Detectar Localização</button>
     </div>
     
-    <!-- Bloco oculto com os demais módulos -->
+    <!-- Bloco com os demais módulos, inicialmente oculto -->
     <div id="info-all">
       <!-- Módulo Planeta Regente -->
       <div class="planet-info" id="dia-planetario-container">
@@ -196,6 +194,11 @@
       <p id="sunrise-sunset">
         Nascer do Sol: <span id="sunrise-time">--:--</span> | Pôr do Sol: <span id="sunset-time">--:--</span>
       </p>
+      
+      <!-- Container para o botão (será movido para o fim) -->
+      <div class="button-container" id="button-bottom">
+        <button class="button" onclick="getLocation()">Detectar Localização</button>
+      </div>
     </div>
   </div>
   
@@ -351,8 +354,10 @@
       getSunTimes(lat, lon);
       getCityName(lat, lon);
       updateMoonInfo(lat, lon);
-      // Exibe os demais módulos após a localização ser obtida
+      // Exibe os demais módulos
       document.getElementById("info-all").style.display = "block";
+      // Move o botão para o final dos módulos
+      document.getElementById("info-all").appendChild(document.getElementById("button-bottom"));
     }
 
     function getCityName(lat, lon) {
@@ -592,7 +597,7 @@
       if (currentEvent) {
         let signName = extractSign(currentEvent.info);
         if (todayStr === currentEvent.date) {
-          // Se for o dia do evento, exibe o evento completo
+          // Se for o dia exato do evento, exibe o evento completo
           let dashIndex = currentEvent.info.indexOf("–");
           if (dashIndex !== -1) {
             let eclipseInfo = currentEvent.info.substring(dashIndex + 1).trim();
