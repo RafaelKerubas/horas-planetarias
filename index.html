@@ -58,6 +58,10 @@
       font-size: 0.8em;
       margin-top: 5px;
     }
+    /* Aumenta somente o ícone e texto da Lua na moldura "A Lua Hoje" */
+    #lua-phase {
+      font-size: 2em;
+    }
     .button {
       padding: 12px 24px;
       font-size: 16px;
@@ -137,8 +141,6 @@
   </div>
   
   <script>
-    // Funções e variáveis definidas em um único bloco para evitar duplicações
-
     // Configurações gerais
     const firstHourMapping = [
       "☉ Hélios/Sol",
@@ -277,7 +279,6 @@
       return `${day} de ${month} de ${year}`;
     }
 
-    // Função para obter a localização
     function getLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition, showError);
@@ -286,7 +287,6 @@
       }
     }
 
-    // Função chamada ao detectar a localização
     function showPosition(position) {
       document.getElementById("location-status").innerText = "Localização detectada.";
       let lat = position.coords.latitude;
@@ -485,7 +485,7 @@
     }
 
     // Atualiza informações lunares usando SunCalc.
-    // Exibe somente o ícone e o nome da fase no campo "lua-phase".
+    // Exibe o ícone e nome da fase no campo "lua-phase".
     // Em "lua-sign", verifica se há um evento no calendário lunar para a data atual.
     function updateMoonInfo(lat, lon) {
       const moonIllum = SunCalc.getMoonIllumination(new Date());
@@ -521,8 +521,8 @@
       
       // Obter a data atual em formato YYYY-MM-DD
       const todayStr = new Date().toISOString().split("T")[0];
-      // Procurar o evento de eclipse ou mudança de signo mais recente (menor ou igual à data de hoje)
       let currentEvent = null;
+      // Percorre os eventos e atualiza currentEvent para o último evento cuja data seja menor ou igual à data atual
       for (const event of lunarCalendar) {
         if (event.date <= todayStr) {
           currentEvent = event;
