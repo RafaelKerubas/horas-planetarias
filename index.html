@@ -34,7 +34,7 @@
       background: rgba(15, 52, 96, 0.8);
       border-radius: 5px;
     }
-    /* Reduzindo margens para aproximar os containers */
+    /* Ajuste de margens para aproximar os containers */
     #dia-planetario-container {
       margin-bottom: 5px;
     }
@@ -47,7 +47,7 @@
     }
     #hora-planetaria-container {
       margin-top: 5px;
-      margin-bottom: 10px;  /* Margem inferior de 10px */
+      margin-bottom: 10px;  /* 10px de margem inferior */
     }
     .col {
       flex: 1 1 48%;
@@ -113,7 +113,7 @@
       <div class="planet-info col" id="lua-info-container">
         <h2>A Lua Hoje</h2>
         <p class="tempo-restante" id="lua-phase">--</p>
-        <p class="tempo-restante" id="lua-sign">Áries, 29 de março, às 7h57</p>
+        <p class="tempo-restante" id="lua-sign">Signo e Eclipse: --</p>
       </div>
     </div>
     
@@ -219,6 +219,71 @@
       }
       // Outras configurações podem ser adicionadas conforme necessário
     };
+  
+    // Calendário Lunar (eventos) para 2025
+    const lunarCalendar = [
+      // Março de 2025
+      { date: "2025-03-06", info: "Lua Crescente em Gêmeos, 6 de março, às 13h31 (horário de Brasília)" },
+      { date: "2025-03-14", info: "Lua Cheia em Virgem – Eclipse Lunar, 14 de março, às 3h54" },
+      { date: "2025-03-22", info: "Lua Minguante em Capricórnio, 22 de março, às 8h29" },
+      { date: "2025-03-29", info: "Lua Nova em Áries – Eclipse Solar, 29 de março, às 7h57" },
+      // Abril de 2025
+      { date: "2025-04-04", info: "Lua Crescente em Câncer, 4 de abril, às 23h14 (horário de Brasília)" },
+      { date: "2025-04-12", info: "Lua Cheia em Libra, 12 de abril, às 21h22" },
+      { date: "2025-04-20", info: "Lua Minguante em Aquário, 20 de abril, às 22h35" },
+      { date: "2025-04-27", info: "Lua Nova em Touro, 27 de abril, às 16h31" },
+      // Maio de 2025
+      { date: "2025-05-04", info: "Lua Crescente em Leão, 4 de maio, às 10h51 (horário de Brasília)" },
+      { date: "2025-05-12", info: "Lua Cheia em Escorpião, 12 de maio, às 13h55" },
+      { date: "2025-05-20", info: "Lua Minguante em Aquário, 20 de maio, às 8h58" },
+      { date: "2025-05-27", info: "Lua Nova em Gêmeos, 27 de maio, à 0h02" },
+      // Junho de 2025
+      { date: "2025-06-03", info: "Lua Crescente em Virgem, 3 de junho, à 0h40 (horário de Brasília)" },
+      { date: "2025-06-11", info: "Lua Cheia em Sagitário, 11 de junho, às 4h43" },
+      { date: "2025-06-18", info: "Lua Minguante em Peixes, 18 de junho, às 16h19" },
+      { date: "2025-06-25", info: "Lua Nova em Câncer, 25 de junho, às 7h31" },
+      // Julho de 2025
+      { date: "2025-07-02", info: "Lua Crescente em Libra, 2 de julho, às 16h30 (horário de Brasília)" },
+      { date: "2025-07-10", info: "Lua Cheia em Capricórnio, 10 de julho, às 17h36" },
+      { date: "2025-07-17", info: "Lua Minguante em Áries, 17 de julho, às 21h37" },
+      { date: "2025-07-24", info: "Lua Nova em Leão, 24 de julho, às 16h11" },
+      // Agosto de 2025
+      { date: "2025-08-01", info: "Lua Crescente em Escorpião, 1º de agosto, às 9h41 (horário de Brasília)" },
+      { date: "2025-08-09", info: "Lua Cheia em Aquário, 9 de agosto, às 4h55" },
+      { date: "2025-08-16", info: "Lua Minguante em Touro, 16 de agosto, às 2h12" },
+      { date: "2025-08-23", info: "Lua Nova em Virgem, 23 de agosto, às 3h06" },
+      { date: "2025-08-31", info: "Lua Crescente em Sagitário, 31 de agosto, às 3h25" },
+      // Setembro de 2025
+      { date: "2025-09-07", info: "Lua Cheia em Peixes – Eclipse Lunar, 7 de setembro, às 15h08" },
+      { date: "2025-09-14", info: "Lua Minguante em Gêmeos, 14 de setembro, às 7h32" },
+      { date: "2025-09-21", info: "Lua Nova em Virgem – Eclipse Solar, 21 de setembro, às 16h54" },
+      { date: "2025-09-29", info: "Lua Crescente em Capricórnio, 29 de setembro, às 20h53" },
+      // Outubro de 2025
+      { date: "2025-10-07", info: "Lua Cheia em Áries, 7 de outubro, à 0h47" },
+      { date: "2025-10-13", info: "Lua Minguante em Câncer, 13 de outubro, às 15h12" },
+      { date: "2025-10-21", info: "Lua Nova em Libra, 21 de outubro, às 9h25" },
+      { date: "2025-10-29", info: "Lua Crescente em Aquário, 29 de outubro, às 13h20" },
+      // Novembro de 2025
+      { date: "2025-11-05", info: "Lua Cheia em Touro, 5 de novembro, às 10h19" },
+      { date: "2025-11-12", info: "Lua Minguante em Leão, 12 de novembro, às 2h28" },
+      { date: "2025-11-20", info: "Lua Nova em Escorpião, 20 de novembro, às 3h47" },
+      { date: "2025-11-28", info: "Lua Crescente em Peixes, 28 de novembro, às 3h58" },
+      // Dezembro de 2025
+      { date: "2025-12-04", info: "Lua Cheia em Gêmeos, 4 de dezembro, às 20h14" },
+      { date: "2025-12-11", info: "Lua Minguante em Virgem, 11 de dezembro, às 17h51" },
+      { date: "2025-12-19", info: "Lua Nova em Sagitário, 19 de dezembro, às 22h43" },
+      { date: "2025-12-27", info: "Lua Crescente em Áries, 27 de dezembro, às 16h09" }
+    ];
+  
+    // Função para formatar a data do eclipse (ex: "2025-03-29" para "29 de março de 2025")
+    function formatEclipseDate(dateStr) {
+      const dateObj = new Date(dateStr);
+      const day = dateObj.getUTCDate();
+      const monthNames = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+      const month = monthNames[dateObj.getUTCMonth()];
+      const year = dateObj.getUTCFullYear();
+      return `${day} de ${month} de ${year}`;
+    }
   
     function getLocation() {
       if (navigator.geolocation) {
@@ -426,8 +491,8 @@
     }
   
     // Atualiza informações lunares usando SunCalc.
-    // Agora, a linha referente à fase lunar exibe somente o ícone e o nome.
-    // A linha referente ao signo lunar exibe um placeholder para a posição do signo e informações de eclipse.
+    // Além de exibir a fase lunar (ícone e nome) em "lua-phase",
+    // verifica no array lunarCalendar se há um evento para a data atual e, se houver, exibe suas informações em "lua-sign".
     function updateMoonInfo(lat, lon) {
       const moonIllum = SunCalc.getMoonIllumination(new Date());
       const phase = moonIllum.phase; // valor entre 0 e 1
@@ -459,10 +524,79 @@
         phaseIcon = "🌘";
       }
       document.getElementById("lua-phase").innerText = phaseIcon + " " + phaseName;
-      // Placeholder para as informações do signo lunar e eclipses.
-      document.getElementById("lua-sign").innerText = "Áries, 29 de março, às 7h57";
+      
+      // Verifica se há um evento no calendário lunar para a data atual
+      const todayStr = new Date().toISOString().split("T")[0];
+      let currentEvent = null;
+      for (const event of lunarCalendar) {
+        if (event.date <= todayStr) {
+          currentEvent = event;
+        }
+      }
+      if (currentEvent) {
+        document.getElementById("lua-sign").innerText = currentEvent.info;
+      } else {
+        document.getElementById("lua-sign").innerText = "Signo e Eclipse: --";
+      }
     }
+  
+    // Calendário Lunar de 2025
+    const lunarCalendar = [
+      // Março de 2025
+      { date: "2025-03-06", info: "Lua Crescente em Gêmeos, 6 de março, às 13h31 (horário de Brasília)" },
+      { date: "2025-03-14", info: "Lua Cheia em Virgem – Eclipse Lunar, 14 de março, às 3h54" },
+      { date: "2025-03-22", info: "Lua Minguante em Capricórnio, 22 de março, às 8h29" },
+      { date: "2025-03-29", info: "Lua Nova em Áries – Eclipse Solar, 29 de março, às 7h57" },
+      // Abril de 2025
+      { date: "2025-04-04", info: "Lua Crescente em Câncer, 4 de abril, às 23h14 (horário de Brasília)" },
+      { date: "2025-04-12", info: "Lua Cheia em Libra, 12 de abril, às 21h22" },
+      { date: "2025-04-20", info: "Lua Minguante em Aquário, 20 de abril, às 22h35" },
+      { date: "2025-04-27", info: "Lua Nova em Touro, 27 de abril, às 16h31" },
+      // Maio de 2025
+      { date: "2025-05-04", info: "Lua Crescente em Leão, 4 de maio, às 10h51 (horário de Brasília)" },
+      { date: "2025-05-12", info: "Lua Cheia em Escorpião, 12 de maio, às 13h55" },
+      { date: "2025-05-20", info: "Lua Minguante em Aquário, 20 de maio, às 8h58" },
+      { date: "2025-05-27", info: "Lua Nova em Gêmeos, 27 de maio, à 0h02" },
+      // Junho de 2025
+      { date: "2025-06-03", info: "Lua Crescente em Virgem, 3 de junho, à 0h40 (horário de Brasília)" },
+      { date: "2025-06-11", info: "Lua Cheia em Sagitário, 11 de junho, às 4h43" },
+      { date: "2025-06-18", info: "Lua Minguante em Peixes, 18 de junho, às 16h19" },
+      { date: "2025-06-25", info: "Lua Nova em Câncer, 25 de junho, às 7h31" },
+      // Julho de 2025
+      { date: "2025-07-02", info: "Lua Crescente em Libra, 2 de julho, às 16h30 (horário de Brasília)" },
+      { date: "2025-07-10", info: "Lua Cheia em Capricórnio, 10 de julho, às 17h36" },
+      { date: "2025-07-17", info: "Lua Minguante em Áries, 17 de julho, às 21h37" },
+      { date: "2025-07-24", info: "Lua Nova em Leão, 24 de julho, às 16h11" },
+      // Agosto de 2025
+      { date: "2025-08-01", info: "Lua Crescente em Escorpião, 1º de agosto, às 9h41 (horário de Brasília)" },
+      { date: "2025-08-09", info: "Lua Cheia em Aquário, 9 de agosto, às 4h55" },
+      { date: "2025-08-16", info: "Lua Minguante em Touro, 16 de agosto, às 2h12" },
+      { date: "2025-08-23", info: "Lua Nova em Virgem, 23 de agosto, às 3h06" },
+      { date: "2025-08-31", info: "Lua Crescente em Sagitário, 31 de agosto, às 3h25" },
+      // Setembro de 2025
+      { date: "2025-09-07", info: "Lua Cheia em Peixes – Eclipse Lunar, 7 de setembro, às 15h08" },
+      { date: "2025-09-14", info: "Lua Minguante em Gêmeos, 14 de setembro, às 7h32" },
+      { date: "2025-09-21", info: "Lua Nova em Virgem – Eclipse Solar, 21 de setembro, às 16h54" },
+      { date: "2025-09-29", info: "Lua Crescente em Capricórnio, 29 de setembro, às 20h53" },
+      // Outubro de 2025
+      { date: "2025-10-07", info: "Lua Cheia em Áries, 7 de outubro, à 0h47" },
+      { date: "2025-10-13", info: "Lua Minguante em Câncer, 13 de outubro, às 15h12" },
+      { date: "2025-10-21", info: "Lua Nova em Libra, 21 de outubro, às 9h25" },
+      { date: "2025-10-29", info: "Lua Crescente em Aquário, 29 de outubro, às 13h20" },
+      // Novembro de 2025
+      { date: "2025-11-05", info: "Lua Cheia em Touro, 5 de novembro, às 10h19" },
+      { date: "2025-11-12", info: "Lua Minguante em Leão, 12 de novembro, às 2h28" },
+      { date: "2025-11-20", info: "Lua Nova em Escorpião, 20 de novembro, às 3h47" },
+      { date: "2025-11-28", info: "Lua Crescente em Peixes, 28 de novembro, às 3h58" },
+      // Dezembro de 2025
+      { date: "2025-12-04", info: "Lua Cheia em Gêmeos, 4 de dezembro, às 20h14" },
+      { date: "2025-12-11", info: "Lua Minguante em Virgem, 11 de dezembro, às 17h51" },
+      { date: "2025-12-19", info: "Lua Nova em Sagitário, 19 de dezembro, às 22h43" },
+      { date: "2025-12-27", info: "Lua Crescente em Áries, 27 de dezembro, às 16h09" }
+    ];
   </script>
+  
+  <!-- Resto do código permanece inalterado -->
   
 </body>
 </html>
