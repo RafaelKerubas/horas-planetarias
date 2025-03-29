@@ -7,31 +7,27 @@
   <!-- Inclusão da biblioteca SunCalc via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
   <style>
-    /* Reset e definição de altura total para html e body */
+    /* Reset simples sem altura fixa */
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
     }
     
-    /* O body agora ocupa 100vh e o fundo cobre toda a tela */
+    /* Body: fundo dinâmico que se estende com o conteúdo */
     body {
       min-height: 100vh;
       background: linear-gradient(to bottom, #1a1a2e, #0f3460);
       background-repeat: no-repeat;
-      background-attachment: fixed; /* Opcional: fixa o fundo ao rolar */
       background-size: cover;
       color: #fff;
       font-family: Arial, sans-serif;
-      display: flex;
-      align-items: flex-start; /* Alinha o conteúdo ao topo */
-      justify-content: center; /* Centraliza horizontalmente */
-      padding-top: 20px;       /* Espaço no topo */
     }
     
+    /* Centraliza a .container com margin auto e adiciona espaçamento vertical */
     .container {
       max-width: 90%;
       width: 600px;
+      margin: 20px auto;
       padding: 20px;
       background: rgba(22, 33, 62, 0.9);
       border-radius: 10px;
@@ -268,7 +264,54 @@
   </div>
   
   <script>
-    // Configurações e mapeamentos
+    // Declaração única de kitDetails
+    const kitDetails = {
+      "Sol": {
+        vela: "Dourada, Amarela, Laranja",
+        incenso: "Olíbano (Frankincense), Alecrim, Canela, Girassol",
+        pedras: "Olho de Tigre, Citrino, Topázio Imperial, Âmbar, Granada",
+        usos: "Vitalidade, poder pessoal, sucesso, cura, liderança"
+      },
+      "Lua": {
+        vela: "Branca, Prata, Azul Claro",
+        incenso: "Jasmim, Sândalo Branco, Camomila, Mirra",
+        pedras: "Pedra da Lua, Selenita, Pérola, Opala Branca, Quartzo Leitoso",
+        usos: "Intuição, emoções, sonhos, proteção psíquica, fertilidade"
+      },
+      "Marte": {
+        vela: "Vermelha, Escarlate",
+        incenso: "Cravo, Gengibre, Pimenta-Do-Reino, Arruda",
+        pedras: "Jaspe Vermelho, Granada",
+        alternativas: "Rubi, Coral Vermelho, Hematita",
+        usos: "Ação, coragem, proteção, energia, combate espiritual"
+      },
+      "Mercúrio": {
+        vela: "Amarela, Laranja, Cinza",
+        incenso: "Lavanda, Hortelã, Erva-Doce, Anis",
+        pedras: "Ágata, Fluorita, Citrino, Turquesa",
+        usos: "Comunicação, raciocínio, aprendizado, escrita, comércio"
+      },
+      "Júpiter": {
+        vela: "Azul Royal, Roxa, Verde",
+        incenso: "Benjoim, Noz-Moscada, Cedro, Sálvia",
+        pedras: "Ametista, Lápis-Lazúli, Safira, Sodalita, Olho de Falcão",
+        usos: "Expansão, prosperidade, sorte, sabedoria espiritual"
+      },
+      "Vênus": {
+        vela: "Rosa, Verde, Cobre",
+        incenso: "Rosa, Patchouli, Sândalo Rosa, Baunilha",
+        pedras: "Quartzo Rosa, Esmeralda, Jade, Malaquita, Rodocrosita",
+        usos: "Amor, beleza, prazer, harmonia, arte, magnetismo pessoal"
+      },
+      "Saturno": {
+        vela: "Preta, Cinza, Azul Escuro",
+        incenso: "Mirra, Cipreste, Vetiver, Pinho",
+        pedras: "Ônix, Obsidiana, Turmalina Preta, Hematita, Safira Negra",
+        usos: "Estrutura, proteção, banimento, introspecção, disciplina"
+      }
+    };
+
+    // Outras declarações e mapeamentos
     const firstHourMapping = [
       "☉ Hélios/Sol",
       "☽ Selene/Lua",
@@ -350,7 +393,6 @@
       }
     };
 
-    // Calendário Lunar
     const lunarCalendar = [
       { date: "2025-03-06", info: "Lua Crescente em Gêmeos, 6 de março, às 13h31 (horário de Brasília)" },
       { date: "2025-03-14", info: "Lua Cheia em Virgem – Eclipse Lunar, 14 de março, às 3h54" },
@@ -413,7 +455,7 @@
       document.getElementById("loading-spinner").style.display = "none";
     }
 
-    // Obtém a localização com tratamento de erros e feedback visual
+    // Função getLocation declarada no escopo global
     function getLocation() {
       showSpinner();
       document.getElementById("location-status").style.display = "block";
@@ -499,6 +541,11 @@
           calculatePlanetaryHours(sunrise, sunset, nextSunrise);
           startElapsedTimeTimer(sunrise, sunset);
           startTimeUntilSunset(sunset, nextSunrise);
+          
+          // Atualiza o fundo dinâmico com base nos horários solares
+          updateDynamicBackground();
+          // Atualiza o fundo a cada 10 minutos
+          setInterval(updateDynamicBackground, 600000);
         })
         .catch(error => {
           console.error("Erro ao obter horários do sol:", error);
@@ -617,7 +664,7 @@
         const totalSeconds = Math.floor(diff / 1000);
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 3600 % 60;
+        const seconds = totalSeconds % 60;
         const formatted =
           (hours < 10 ? "0" + hours : hours) + ":" +
           (minutes < 10 ? "0" + minutes : minutes) + ":" +
@@ -755,52 +802,34 @@
       document.getElementById("kit-content").innerHTML = kitContent;
     }
 
-    // Detalhes dos kits para cada planeta
-    const kitDetails = {
-      "Sol": {
-        vela: "Dourada, Amarela, Laranja",
-        incenso: "Olíbano (Frankincense), Alecrim, Canela, Girassol",
-        pedras: "Olho de Tigre, Citrino, Topázio Imperial, Âmbar, Granada",
-        usos: "Vitalidade, poder pessoal, sucesso, cura, liderança"
-      },
-      "Lua": {
-        vela: "Branca, Prata, Azul Claro",
-        incenso: "Jasmim, Sândalo Branco, Camomila, Mirra",
-        pedras: "Pedra da Lua, Selenita, Pérola, Opala Branca, Quartzo Leitoso",
-        usos: "Intuição, emoções, sonhos, proteção psíquica, fertilidade"
-      },
-      "Marte": {
-        vela: "Vermelha, Escarlate",
-        incenso: "Cravo, Gengibre, Pimenta-Do-Reino, Arruda",
-        pedras: "Jaspe Vermelho, Granada",
-        alternativas: "Rubi, Coral Vermelho, Hematita",
-        usos: "Ação, coragem, proteção, energia, combate espiritual"
-      },
-      "Mercúrio": {
-        vela: "Amarela, Laranja, Cinza",
-        incenso: "Lavanda, Hortelã, Erva-Doce, Anis",
-        pedras: "Ágata, Fluorita, Citrino, Turquesa",
-        usos: "Comunicação, raciocínio, aprendizado, escrita, comércio"
-      },
-      "Júpiter": {
-        vela: "Azul Royal, Roxa, Verde",
-        incenso: "Benjoim, Noz-Moscada, Cedro, Sálvia",
-        pedras: "Ametista, Lápis-Lazúli, Safira, Sodalita, Olho de Falcão",
-        usos: "Expansão, prosperidade, sorte, sabedoria espiritual"
-      },
-      "Vênus": {
-        vela: "Rosa, Verde, Cobre",
-        incenso: "Rosa, Patchouli, Sândalo Rosa, Baunilha",
-        pedras: "Quartzo Rosa, Esmeralda, Jade, Malaquita, Rodocrosita",
-        usos: "Amor, beleza, prazer, harmonia, arte, magnetismo pessoal"
-      },
-      "Saturno": {
-        vela: "Preta, Cinza, Azul Escuro",
-        incenso: "Mirra, Cipreste, Vetiver, Pinho",
-        pedras: "Ônix, Obsidiana, Turmalina Preta, Hematita, Safira Negra",
-        usos: "Estrutura, proteção, banimento, introspecção, disciplina"
+    // Função que atualiza o fundo dinamicamente de acordo com os horários solares
+    function updateDynamicBackground() {
+      const now = new Date();
+      if (window.sunrise && window.sunset && window.nextSunrise) {
+        const oneHour = 3600000;
+        const body = document.body;
+        const sunrise = window.sunrise;
+        const goldenHourStart = new Date(window.sunset.getTime() - oneHour);
+        const sunset = window.sunset;
+        
+        if (now < sunrise) {
+          // Madrugada: tons escuros
+          body.style.background = "linear-gradient(to bottom, #0f0c29, #302b63, #24243e)";
+        } else if (now >= sunrise && now < new Date(sunrise.getTime() + oneHour)) {
+          // Amanhecer: tons quentes
+          body.style.background = "linear-gradient(to bottom, #FFB347, #FFD194)";
+        } else if (now >= new Date(sunrise.getTime() + oneHour) && now < goldenHourStart) {
+          // Dia: tons de azul claros
+          body.style.background = "linear-gradient(to bottom, #87CEEB, #87CEFA)";
+        } else if (now >= goldenHourStart && now < sunset) {
+          // Golden Hour: tons dourados e laranja
+          body.style.background = "linear-gradient(to bottom, #FFD700, #FF8C00)";
+        } else {
+          // Noite: gradiente azul padrão
+          body.style.background = "linear-gradient(to bottom, #1a1a2e, #0f3460)";
+        }
       }
-    };
+    }
   </script>
 </body>
 </html>
