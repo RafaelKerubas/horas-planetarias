@@ -40,6 +40,10 @@
       font-size: 0.8em;
       margin-top: 5px;
     }
+    /* Reduzir o espaçamento entre os parágrafos dentro do kit */
+    #kit-content p {
+      margin: 2px 0;
+    }
     /* Novo módulo: Kit Planetário de hoje */
     #kit-planetario-container {
       margin-bottom: 5px;
@@ -53,7 +57,7 @@
     }
     #hora-planetaria-container {
       margin-top: 5px;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
     .col {
       flex: 1 1 48%;
@@ -305,6 +309,7 @@
       { date: "2025-12-27", info: "Lua Crescente em Áries, 27 de dezembro, às 16h09" }
     ];
 
+    // Função para formatar a data (ex: "2025-03-29" para "29 de março de 2025")
     function formatEclipseDate(dateStr) {
       const dateObj = new Date(dateStr);
       const day = dateObj.getUTCDate();
@@ -329,7 +334,7 @@
       getSunTimes(lat, lon);
       getCityName(lat, lon);
       updateMoonInfo(lat, lon);
-      // Removemos a chamada de updateKitPlanetario daqui
+      // O kit é atualizado dentro de calculatePlanetaryHours, que é chamada em getSunTimes.
     }
 
     function getCityName(lat, lon) {
@@ -446,7 +451,7 @@
         document.getElementById("info-message").innerText = "";
       }
       
-      // Atualiza o Kit Planetário após definir o planeta regente
+      // Atualiza o módulo Kit Planetário de hoje após definir o planeta regente
       updateKitPlanetario();
     }
 
