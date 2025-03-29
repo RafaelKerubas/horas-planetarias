@@ -112,8 +112,8 @@
       <!-- Coluna 2: A Lua Hoje -->
       <div class="planet-info col" id="lua-info-container">
         <h2>A Lua Hoje</h2>
-        <p class="tempo-restante" id="lua-phase">Fase da Lua: --</p>
-        <p class="tempo-restante" id="lua-sign">Signo Luar: --</p>
+        <p class="tempo-restante" id="lua-phase">--</p>
+        <p class="tempo-restante" id="lua-sign">Áries, 29 de março, às 7h57</p>
       </div>
     </div>
     
@@ -425,7 +425,9 @@
       }, 1000);
     }
   
-    // Atualiza informações lunares usando SunCalc
+    // Atualiza informações lunares usando SunCalc.
+    // Agora, a linha referente à fase lunar exibe somente o ícone e o nome.
+    // A linha referente ao signo lunar exibe um placeholder para a posição do signo e informações de eclipse.
     function updateMoonInfo(lat, lon) {
       const moonIllum = SunCalc.getMoonIllumination(new Date());
       const phase = moonIllum.phase; // valor entre 0 e 1
@@ -456,8 +458,9 @@
         phaseName = "Minguante";
         phaseIcon = "🌘";
       }
-      document.getElementById("lua-phase").innerText = "Fase da Lua: " + phaseIcon + " " + phaseName;
-      document.getElementById("lua-sign").innerText = "Signo Luar: --";
+      document.getElementById("lua-phase").innerText = phaseIcon + " " + phaseName;
+      // Placeholder para as informações do signo lunar e eclipses.
+      document.getElementById("lua-sign").innerText = "Áries, 29 de março, às 7h57";
     }
   </script>
   
