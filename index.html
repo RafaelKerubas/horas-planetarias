@@ -28,33 +28,44 @@
       color: #f8b400;
       margin-bottom: 10px;
     }
-    /* Todos os módulos usam a mesma base de cores e estilo */
+    /* Base para os módulos */
     .planet-info {
       padding: 15px;
       background: rgba(15, 52, 96, 0.8);
       border-radius: 5px;
       margin-bottom: 5px;
     }
-    #dia-planetario-container,
+    /* Regras para day-definition */
+    .day-definition {
+      color: #f8b400;
+      font-size: 0.8em;
+      margin-top: 5px;
+    }
+    /* Novas regras para manter mesmo estilo nos módulos "A Lua Hoje" e "Kit Planetário" */
+    #lua-data, #kit-content {
+      color: #f8b400;
+      font-size: 0.8em;
+    }
+    /* Novo módulo: Kit Planetário de hoje */
     #kit-planetario-container {
       margin-bottom: 5px;
     }
     .row {
       display: flex;
-      gap: 5px;  /* Espaçamento horizontal de 5px */
+      gap: 5px;  /* Espaçamento horizontal de 5px entre as colunas */
       flex-wrap: wrap;
       justify-content: space-between;
       margin: 5px 0;
     }
     #hora-planetaria-container {
       margin-top: 5px;
-      margin-bottom: 10px;
+      margin-bottom: 10px;  /* 10px de margem inferior para aproximar do botão */
     }
     .col {
       flex: 1 1 48%;
       box-sizing: border-box;
     }
-    .tempo-restante, .adjacent-hours, #info-message, .day-definition {
+    .tempo-restante, .adjacent-hours, #info-message {
       color: #f8b400;
       font-size: 0.8em;
       margin-top: 5px;
@@ -76,10 +87,7 @@
     #lua-icon {
       font-size: 2em;
     }
-    #lua-data {
-      text-align: left;
-      font-size: 0.8em;
-    }
+    /* O container lua-data já foi ajustado para usar as mesmas regras */
     #lua-eclipse {
       margin-top: 5px;
     }
@@ -305,7 +313,7 @@
       { date: "2025-12-27", info: "Lua Crescente em Áries, 27 de dezembro, às 16h09" }
     ];
 
-    // Função para formatar a data (por exemplo, "2025-03-29" para "29 de março de 2025")
+    // Função para formatar a data (ex: "2025-03-29" para "29 de março de 2025")
     function formatEclipseDate(dateStr) {
       const dateObj = new Date(dateStr);
       const day = dateObj.getUTCDate();
@@ -513,173 +521,4 @@
         if (diff < 0) diff = 0;
         const totalSeconds = Math.floor(diff / 1000);
         const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        const formatted =
-          (hours < 10 ? "0" + hours : hours) + ":" +
-          (minutes < 10 ? "0" + minutes : minutes) + ":" +
-          (seconds < 10 ? "0" + seconds : seconds);
-        document.getElementById("tempo-ate-pôr").innerText = label + formatted;
-      }, 1000);
-    }
-
-    // Atualiza informações lunares usando SunCalc.
-    // "lua-icon": exibe o ícone da fase.
-    // "lua-sign": se hoje for o dia do evento, exibe o nome do signo com data e hora completos;
-    // se não, exibe "fase em signo" (ex: "Crescente em Gêmeos").
-    function updateMoonInfo(lat, lon) {
-      const moonIllum = SunCalc.getMoonIllumination(new Date());
-      const phase = moonIllum.phase;
-      let phaseName = "";
-      let phaseIcon = "";
-      if (phase < 0.0625 || phase >= 0.9375) {
-        phaseName = "Lua Nova";
-        phaseIcon = "🌑";
-      } else if (phase < 0.1875) {
-        phaseName = "Crescente";
-        phaseIcon = "🌒";
-      } else if (phase < 0.3125) {
-        phaseName = "Quarto Crescente";
-        phaseIcon = "🌓";
-      } else if (phase < 0.4375) {
-        phaseName = "Gibosa Crescente";
-        phaseIcon = "🌔";
-      } else if (phase < 0.5625) {
-        phaseName = "Lua Cheia";
-        phaseIcon = "🌕";
-      } else if (phase < 0.6875) {
-        phaseName = "Gibosa Minguante";
-        phaseIcon = "🌖";
-      } else if (phase < 0.8125) {
-        phaseName = "Quarto Minguante";
-        phaseIcon = "🌗";
-      } else {
-        phaseName = "Minguante";
-        phaseIcon = "🌘";
-      }
-      document.getElementById("lua-icon").innerText = phaseIcon;
-      
-      const todayStr = new Date().toISOString().split("T")[0];
-      let currentEvent = null;
-      for (const event of lunarCalendar) {
-        if (event.date <= todayStr) {
-          currentEvent = event;
-        }
-      }
-      if (currentEvent) {
-        let signName = extractSign(currentEvent.info);
-        if (todayStr === currentEvent.date) {
-          // No dia exato do evento, exibe o evento completo (data e hora)
-          // Se houver eclipse, destaca a parte de eclipse em negrito.
-          let dashIndex = currentEvent.info.indexOf("–");
-          if (dashIndex !== -1) {
-            let eclipseInfo = currentEvent.info.substring(dashIndex + 1).trim();
-            // Exibe a parte antes do "–" (que já contém fase e signo) e os dados de eclipse destacados.
-            document.getElementById("lua-sign").innerText = currentEvent.info.split("–")[0].trim();
-            document.getElementById("lua-eclipse").innerHTML = "<strong>" + eclipseInfo + "</strong>";
-          } else {
-            document.getElementById("lua-sign").innerText = currentEvent.info;
-            document.getElementById("lua-eclipse").innerText = "";
-          }
-        } else {
-          // Se não for o dia do evento, exibe "fase em signo"
-          document.getElementById("lua-sign").innerText = phaseName + " em " + signName;
-          document.getElementById("lua-eclipse").innerText = "";
-        }
-      } else {
-        document.getElementById("lua-sign").innerText = phaseName;
-        document.getElementById("lua-eclipse").innerText = "";
-      }
-    }
-
-    // Função auxiliar para extrair o nome do signo a partir do texto do evento
-    function extractSign(info) {
-      let lowerInfo = info.toLowerCase();
-      let index = lowerInfo.indexOf(" em ");
-      if (index !== -1) {
-        let after = info.substring(index + 4).trim();
-        let commaIndex = after.indexOf(",");
-        let hyphenIndex = after.indexOf("–");
-        let endIndex = after.length;
-        if (commaIndex !== -1 && hyphenIndex !== -1) {
-          endIndex = Math.min(commaIndex, hyphenIndex);
-        } else if (commaIndex !== -1) {
-          endIndex = commaIndex;
-        } else if (hyphenIndex !== -1) {
-          endIndex = hyphenIndex;
-        }
-        return after.substring(0, endIndex).trim();
-      }
-      return "";
-    }
-
-    // Atualiza o módulo "Kit Planetário de hoje" com base no planeta regente
-    function updateKitPlanetario() {
-      let regenteText = document.getElementById("dia-planetario").innerText;
-      let parts = regenteText.split("/");
-      let planetName = parts.length > 1 ? parts[1].trim() : regenteText.trim();
-      let kit = kitDetails[planetName];
-      let kitContent = "";
-      if (kit) {
-        kitContent += "<p><strong>Vela:</strong> " + kit.vela + "</p>";
-        kitContent += "<p><strong>Incenso:</strong> " + kit.incenso + "</p>";
-        kitContent += "<p><strong>Pedras:</strong> " + kit.pedras + "</p>";
-        if (kit.alternativas) {
-          kitContent += "<p><strong>Alternativas:</strong> " + kit.alternativas + "</p>";
-        }
-        kitContent += "<p><strong>Usos:</strong> " + kit.usos + "</p>";
-      } else {
-        kitContent = "<p>Sem kit definido para " + planetName + ".</p>";
-      }
-      document.getElementById("kit-content").innerHTML = kitContent;
-    }
-
-    // Detalhes dos kits para cada planeta
-    const kitDetails = {
-      "Sol": {
-        vela: "Dourada, Amarela, Laranja",
-        incenso: "Olíbano (Frankincense), Alecrim, Canela, Girassol",
-        pedras: "Olho de Tigre, Citrino, Topázio Imperial, Âmbar, Granada",
-        usos: "Vitalidade, poder pessoal, sucesso, cura, liderança"
-      },
-      "Lua": {
-        vela: "Branca, Prata, Azul Claro",
-        incenso: "Jasmim, Sândalo Branco, Camomila, Mirra",
-        pedras: "Pedra da Lua, Selenita, Pérola, Opala Branca, Quartzo Leitoso",
-        usos: "Intuição, emoções, sonhos, proteção psíquica, fertilidade"
-      },
-      "Marte": {
-        vela: "Vermelha, Escarlate",
-        incenso: "Cravo, Gengibre, Pimenta-Do-Reino, Arruda",
-        pedras: "Jaspe Vermelho, Granada",
-        alternativas: "Rubi, Coral Vermelho, Hematita",
-        usos: "Ação, coragem, proteção, energia, combate espiritual"
-      },
-      "Mercúrio": {
-        vela: "Amarela, Laranja, Cinza",
-        incenso: "Lavanda, Hortelã, Erva-Doce, Anis",
-        pedras: "Ágata, Fluorita, Citrino, Turquesa",
-        usos: "Comunicação, raciocínio, aprendizado, escrita, comércio"
-      },
-      "Júpiter": {
-        vela: "Azul Royal, Roxa, Verde",
-        incenso: "Benjoim, Noz-Moscada, Cedro, Sálvia",
-        pedras: "Ametista, Lápis-Lazúli, Safira, Sodalita, Olho de Falcão",
-        usos: "Expansão, prosperidade, sorte, sabedoria espiritual"
-      },
-      "Vênus": {
-        vela: "Rosa, Verde, Cobre",
-        incenso: "Rosa, Patchouli, Sândalo Rosa, Baunilha",
-        pedras: "Quartzo Rosa, Esmeralda, Jade, Malaquita, Rodocrosita",
-        usos: "Amor, beleza, prazer, harmonia, arte, magnetismo pessoal"
-      },
-      "Saturno": {
-        vela: "Preta, Cinza, Azul Escuro",
-        incenso: "Mirra, Cipreste, Vetiver, Pinho",
-        pedras: "Ônix, Obsidiana, Turmalina Preta, Hematita, Safira Negra",
-        usos: "Estrutura, proteção, banimento, introspecção, disciplina"
-      }
-    };
-  </script>
-</body>
-</html>
+        const minutes = Math.floor((totalSeconds
