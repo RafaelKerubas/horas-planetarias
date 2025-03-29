@@ -103,7 +103,7 @@
   </div>
   
   <script>
-    // Novo mapeamento para o Dia Planetário com deuses
+    // Novo mapeamento para o Dia Planetário: Ícone e nome do deus
     const firstHourMapping = [
       "♄ Cronos/Saturno",
       "☉ Hélios/Sol",
@@ -183,7 +183,6 @@
       let currentTime = today;
       let startDayIndex;
   
-      // Se o horário atual for antes do nascer, usa horários do dia anterior
       if (currentTime < sunrise) {
         let prevSunrise = new Date(sunrise.getTime() - 24 * 60 * 60 * 1000);
         let prevSunset = new Date(sunset.getTime() - 24 * 60 * 60 * 1000);
@@ -246,10 +245,10 @@
   
       startCronometro(intervalEnd);
   
-      // Atualiza a terceira moldura com o título "Dia da Semana - (ordinal) Hora Planetária"
+      // Atualiza a terceira moldura com o título "Dia da Semana - (ordinal) Hora"
       let dayTitle = dayNames[startDayIndex];
-      let ordinal = currentHourIndex + "ª";  // Exemplo: "1ª", "2ª", etc.
-      document.getElementById("info-title").innerText = dayTitle + " - " + ordinal + " Hora Planetária";
+      let ordinal = currentHourIndex + "ª"; 
+      document.getElementById("info-title").innerText = dayTitle + " - " + ordinal + " Hora";
     }
   
     function startCronometro(endTime) {
@@ -265,7 +264,7 @@
           const hours = Math.floor(totalSeconds / 3600);
           const minutes = Math.floor((totalSeconds % 3600) / 60);
           const seconds = totalSeconds % 60;
-          const formatted =
+          const formatted = 
             (hours < 10 ? "0" + hours : hours) + ":" +
             (minutes < 10 ? "0" + minutes : minutes) + ":" +
             (seconds < 10 ? "0" + seconds : seconds);
@@ -291,7 +290,7 @@
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
-        const formatted =
+        const formatted = 
           (hours < 10 ? "0" + hours : hours) + ":" +
           (minutes < 10 ? "0" + minutes : minutes) + ":" +
           (seconds < 10 ? "0" + seconds : seconds);
@@ -316,7 +315,7 @@
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
-        const formatted =
+        const formatted = 
           (hours < 10 ? "0" + hours : hours) + ":" +
           (minutes < 10 ? "0" + minutes : minutes) + ":" +
           (seconds < 10 ? "0" + seconds : seconds);
