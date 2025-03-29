@@ -28,12 +28,24 @@
       color: #f8b400;
       margin-bottom: 10px;
     }
-    /* Molduras para os campos */
+    /* Molduras individuais */
     .planet-info {
       margin: 20px 0;
       padding: 15px;
       background: rgba(15, 52, 96, 0.8);
       border-radius: 5px;
+    }
+    /* Molduras em linha (row) para Hora Planetária e Lua Hoje */
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    /* Cada coluna ocupa aproximadamente 48% (para duas colunas) */
+    .col {
+      flex: 1 1 48%;
+      box-sizing: border-box;
     }
     .tempo-restante, .adjacent-hours, #info-message, .day-definition {
       color: #f8b400;
@@ -63,6 +75,9 @@
       .container {
         width: 95%;
       }
+      .col {
+        flex: 1 1 100%;
+      }
     }
   </style>
 </head>
@@ -74,7 +89,6 @@
     <!-- Moldura 1: Planeta Regente -->
     <div class="planet-info" id="dia-planetario-container">
       <h2>Planeta Regente: <span id="dia-planetario">...</span></h2>
-      <!-- Day-definition logo abaixo do título -->
       <p class="day-definition" id="day-definition">( )</p>
       <p class="tempo-restante" id="tempo-timers">
         <span id="tempo-passado">O Sol nasceu há: --:--:--</span> | 
@@ -82,34 +96,32 @@
       </p>
     </div>
     
-    <!-- Moldura 2: Informações adicionais -->
-    <div class="planet-info" id="info-container">
-      <h2 id="info-title">...</h2>
-      <p id="info-message"></p>
+    <!-- Row com duas colunas: Hora Planetária e Lua Hoje -->
+    <div class="row">
+      <!-- Coluna 1: Hora Planetária Atual -->
+      <div class="planet-info col" id="hora-planetaria-container">
+        <h2>Hora Planetária Atual: <span id="planet-icon">🔆</span> <span id="hora-planetaria">...</span></h2>
+        <p class="tempo-restante">Tempo Restante: <span id="cronometro">--:--:--</span></p>
+        <p class="adjacent-hours">
+          Hora Anterior: <span id="hora-anterior">...</span> | Próxima Hora: <span id="proxima-hora">...</span>
+        </p>
+      </div>
+      <!-- Coluna 2: Lua Hoje -->
+      <div class="planet-info col" id="lua-info-container">
+        <h2>Lua Hoje</h2>
+        <p class="tempo-restante" id="lua-phase">Fase da Lua: --</p>
+        <p class="tempo-restante" id="lua-sign">Signo Luar: --</p>
+      </div>
     </div>
     
-    <!-- Moldura 3: Hora Planetária Atual -->
-    <div class="planet-info" id="hora-planetaria-container">
-      <h2>Hora Planetária Atual: <span id="planet-icon">🔆</span> <span id="hora-planetaria">...</span></h2>
-      <p class="tempo-restante">Tempo Restante: <span id="cronometro">--:--:--</span></p>
-      <p class="adjacent-hours">
-        Hora Anterior: <span id="hora-anterior">...</span> | Próxima Hora: <span id="proxima-hora">...</span>
+    <div>
+      <button class="button" onclick="getLocation()">Detectar Localização</button>
+      <p id="location-status">Localização não detectada.</p>
+      <p id="city-name">Cidade não detectada.</p>
+      <p id="sunrise-sunset">
+        Nascer do Sol: <span id="sunrise-time">--:--</span> | Pôr do Sol: <span id="sunset-time">--:--</span>
       </p>
     </div>
-    
-    <!-- Moldura 4: Fases da Lua & Signo Luar -->
-    <div class="planet-info" id="lua-info-container">
-      <h2>Fases da Lua & Signo Luar</h2>
-      <p class="tempo-restante" id="lua-phase">Fase da Lua: --</p>
-      <p class="tempo-restante" id="lua-sign">Signo Luar: --</p>
-    </div>
-    
-    <button class="button" onclick="getLocation()">Detectar Localização</button>
-    <p id="location-status">Localização não detectada.</p>
-    <p id="city-name">Cidade não detectada.</p>
-    <p id="sunrise-sunset">
-      Nascer do Sol: <span id="sunrise-time">--:--</span> | Pôr do Sol: <span id="sunset-time">--:--</span>
-    </p>
   </div>
   
   <script>
@@ -157,7 +169,7 @@
           "Fazer nada",
           "Trabalhar",
           "Fazer nada",
-          "Magia ou talismãs para o amor dos senhores",
+          "Magia ou talismãs para o amor dos senores",
           "Para amarrar e restringir outros",
           "Pode comparecer perante um rei",
           "Pode aparecer diante de uma senhora",
@@ -167,33 +179,33 @@
       "Sábado": {
         sequence: ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"],
         messages: [
-          "Magia ou talismãs para ferir seu inimigo ou enviar doenças",       // 1ª
-          "Pode causar um naufrágio ou prejudicar alguém",                      // 2ª
-          "Para configurar encantamentos",                                      // 3ª
-          "Pode fazer os senhores lutarem entre si",                           // 4ª
-          "Pode causar ódio entre um casal",                                    // 5ª
-          "Pode encontrar o tesouro",                                           // 6ª
-          "Pode falar com demônios",                                             // 7ª
-          "Para realizar a adivinhação da bacia",                               // 8ª
-          "Para realizar a adivinhação do crânio",                                // 9ª
-          "Pode fazer com que os povos mergulhem no mar",                        // 10ª
-          "Pode deixar os litigantes furiosos uns com os outros",                // 11ª
-          "Pode causar medo e inimizade",                                       // 12ª
-          "Benéfico para descobrir segredos",                                  // 13ª
-          "Pode ver pessoas mortas",                                            // 14ª
-          "Para ter visões – Para adivinhação de água",                           // 15ª
-          "Útil para ensinar",                                                  // 16ª
-          "Hora muito maligna",                                                 // 17ª
-          "Hora inútil",                                                        // 18ª
-          "Para ganhar dinheiro em dados",                                      // 19ª
-          "Pode conter todas as coisas boas",                                   // 20ª
-          "Hora sem virtude",                                                   // 21ª
-          "Pode causar visões",                                                 // 22ª
-          "Útil para lucro",                                                    // 23ª
-          "Hora de aborrecimento e inimizade"                                   // 24ª
+          "Magia ou talismãs para ferir seu inimigo ou enviar doenças",
+          "Pode causar um naufrágio ou prejudicar alguém",
+          "Para configurar encantamentos",
+          "Pode fazer os senhores lutarem entre si",
+          "Pode causar ódio entre um casal",
+          "Pode encontrar o tesouro",
+          "Pode falar com demônios",
+          "Para realizar a adivinhação da bacia",
+          "Para realizar a adivinhação do crânio",
+          "Pode fazer com que os povos mergulhem no mar",
+          "Pode deixar os litigantes furiosos uns com os outros",
+          "Pode causar medo e inimizade",
+          "Benéfico para descobrir segredos",
+          "Pode ver pessoas mortas",
+          "Para ter visões – Para adivinhação de água",
+          "Útil para ensinar",
+          "Hora muito maligna",
+          "Hora inútil",
+          "Para ganhar dinheiro em dados",
+          "Pode conter todas as coisas boas",
+          "Hora sem virtude",
+          "Pode causar visões",
+          "Útil para lucro",
+          "Hora de aborrecimento e inimizade"
         ]
       }
-      // Outras configurações para os demais dias podem ser adicionadas conforme necessário
+      // Outras configurações podem ser adicionadas conforme necessário
     };
   
     function getLocation() {
@@ -401,10 +413,8 @@
       }, 1000);
     }
   
-    // Atualiza informações lunares usando SunCalc para calcular a fase lunar.
-    // Agora usa os valores reais de latitude e longitude do usuário.
+    // Atualiza informações lunares usando SunCalc com os valores reais de latitude e longitude.
     function updateMoonInfo(lat, lon) {
-      // Obtem a iluminação lunar para a data atual
       const moonIllum = SunCalc.getMoonIllumination(new Date());
       const phase = moonIllum.phase; // valor entre 0 e 1
       let phaseName = "";
