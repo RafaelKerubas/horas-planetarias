@@ -26,7 +26,6 @@
       color: #f8b400;
       margin-bottom: 10px;
     }
-    /* Molduras para os campos */
     .planet-info {
       margin: 20px 0;
       padding: 15px;
@@ -51,11 +50,9 @@
     .button:hover {
       background-color: #ffcc29;
     }
-    /* Oculta o status de localização */
     #location-status {
       display: none;
     }
-    /* Cidade e estado em negrito */
     #city-name {
       font-weight: bold;
     }
@@ -71,7 +68,7 @@
     <h1>Horas Planetárias</h1>
     <p>Confira o dia e a hora planetária atual baseado na sua localização.</p>
     
-    <!-- Moldura para o Planeta Regente (anteriormente "Dia Planetário") -->
+    <!-- Moldura para o Planeta Regente -->
     <div class="planet-info" id="dia-planetario-container">
       <h2>Planeta Regente: <span id="dia-planetario">...</span></h2>
       <p class="tempo-restante" id="tempo-passado">O Sol nasceu há: --:--:--</p>
@@ -102,7 +99,22 @@
   </div>
   
   <script>
-    // Configuração dos dados para cada dia da semana
+    // Declaração das variáveis de configuração no topo do script:
+    const firstHourMapping = [
+      "☉ Hélios/Sol",
+      "☽ Selene/Lua",
+      "♂ Ares/Marte",
+      "☿ Hermes/Mercúrio",
+      "♃ Zeus/Júpiter",
+      "♀ Afrodite/Vênus",
+      "♄ Cronos/Saturno"
+    ];
+  
+    const chaldeanOrder = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
+  
+    const dayNames = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+  
+    // Configuração específica para cada dia (aqui, exemplificamos Domingo e Sábado; os demais podem ser adicionados)
     const dayConfigurations = {
       "Domingo": {
         sequence: ["☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua", "♄ Saturno", "♃ Júpiter", "♂ Marte"],
@@ -133,7 +145,6 @@
           "Descanse, não faça nada"
         ]
       },
-      // Configurações para os demais dias omitidas para brevidade; veja as listagens anteriores.
       "Sábado": {
         sequence: ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"],
         messages: [
@@ -163,10 +174,8 @@
           "Hora de aborrecimento e inimizade"                                   // 24ª
         ]
       }
+      // Outros dias podem ser adicionados aqui...
     };
-  
-    // Nomes dos dias da semana
-    const dayNames = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
   
     function getLocation() {
       if (navigator.geolocation) {
@@ -217,7 +226,7 @@
           document.getElementById("sunrise-time").innerText = sunriseFormatted;
           document.getElementById("sunset-time").innerText = sunsetFormatted;
   
-          // Armazena valores globalmente para o refresh automático
+          // Armazena globalmente para o refresh automático
           window.sunrise = sunrise;
           window.sunset = sunset;
           window.nextSunrise = nextSunrise;
@@ -322,7 +331,7 @@
         if (diff <= 0) {
           document.getElementById("cronometro").innerText = "00:00:00";
           clearInterval(window.cronometroInterval);
-          // Atualiza as informações para a próxima hora automaticamente
+          // Atualiza automaticamente para a próxima hora sem perder a localização
           calculatePlanetaryHours(window.sunrise, window.sunset, window.nextSunrise);
         } else {
           const totalSeconds = Math.floor(diff / 1000);
