@@ -35,23 +35,20 @@
       border-radius: 5px;
       margin-bottom: 5px;
     }
-    #dia-planetario-container {
-      margin-bottom: 5px;
-    }
-    /* Novo módulo: Kit Planetário de hoje */
+    #dia-planetario-container,
     #kit-planetario-container {
       margin-bottom: 5px;
     }
     .row {
       display: flex;
-      gap: 5px;  /* Espaçamento horizontal de 5px entre as colunas */
+      gap: 5px;  /* Espaçamento horizontal de 5px */
       flex-wrap: wrap;
       justify-content: space-between;
       margin: 5px 0;
     }
     #hora-planetaria-container {
       margin-top: 5px;
-      margin-bottom: 10px;  /* 10px de margem inferior para aproximar do botão */
+      margin-bottom: 10px;
     }
     .col {
       flex: 1 1 48%;
@@ -308,11 +305,11 @@
       { date: "2025-12-27", info: "Lua Crescente em Áries, 27 de dezembro, às 16h09" }
     ];
 
-    // Função para formatar a data do eclipse (ex: "2025-03-29" para "29 de março de 2025")
+    // Função para formatar a data (por exemplo, "2025-03-29" para "29 de março de 2025")
     function formatEclipseDate(dateStr) {
       const dateObj = new Date(dateStr);
       const day = dateObj.getUTCDate();
-      const monthNames = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+      const monthNames = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
       const month = monthNames[dateObj.getUTCMonth()];
       const year = dateObj.getUTCFullYear();
       return `${day} de ${month} de ${year}`;
@@ -527,9 +524,9 @@
     }
 
     // Atualiza informações lunares usando SunCalc.
-    // Em "lua-icon": exibe o ícone da fase.
-    // Em "lua-sign" e "lua-eclipse": se hoje for o dia do evento, exibe o nome do signo e, se houver eclipse, os dados do eclipse em negrito.
-    // Caso contrário, exibe apenas o nome do signo.
+    // "lua-icon": exibe o ícone da fase.
+    // "lua-sign": se hoje for o dia do evento, exibe o nome do signo com data e hora completos;
+    // se não, exibe "fase em signo" (ex: "Crescente em Gêmeos").
     function updateMoonInfo(lat, lon) {
       const moonIllum = SunCalc.getMoonIllumination(new Date());
       const phase = moonIllum.phase;
@@ -570,24 +567,27 @@
         }
       }
       if (currentEvent) {
+        let signName = extractSign(currentEvent.info);
         if (todayStr === currentEvent.date) {
-          let signName = extractSign(currentEvent.info);
+          // No dia exato do evento, exibe o evento completo (data e hora)
+          // Se houver eclipse, destaca a parte de eclipse em negrito.
           let dashIndex = currentEvent.info.indexOf("–");
           if (dashIndex !== -1) {
             let eclipseInfo = currentEvent.info.substring(dashIndex + 1).trim();
-            document.getElementById("lua-sign").innerText = signName;
+            // Exibe a parte antes do "–" (que já contém fase e signo) e os dados de eclipse destacados.
+            document.getElementById("lua-sign").innerText = currentEvent.info.split("–")[0].trim();
             document.getElementById("lua-eclipse").innerHTML = "<strong>" + eclipseInfo + "</strong>";
           } else {
-            document.getElementById("lua-sign").innerText = signName;
+            document.getElementById("lua-sign").innerText = currentEvent.info;
             document.getElementById("lua-eclipse").innerText = "";
           }
         } else {
-          let signName = extractSign(currentEvent.info);
-          document.getElementById("lua-sign").innerText = signName;
+          // Se não for o dia do evento, exibe "fase em signo"
+          document.getElementById("lua-sign").innerText = phaseName + " em " + signName;
           document.getElementById("lua-eclipse").innerText = "";
         }
       } else {
-        document.getElementById("lua-sign").innerText = "Signo: --";
+        document.getElementById("lua-sign").innerText = phaseName;
         document.getElementById("lua-eclipse").innerText = "";
       }
     }
