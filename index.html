@@ -64,9 +64,9 @@
     
     <div class="planet-info">
       <h2>Dia Planetário: <span id="dia-planetario">...</span></h2>
-      <!-- Marcador de tempo decorrido desde o nascer do sol -->
+      <!-- Marcador de tempo decorrido (após nascer ou após pôr) -->
       <p class="tempo-restante" id="tempo-passado">O Sol nasceu há: --:--:--</p>
-      <!-- Novo marcador: tempo restante para o pôr do sol -->
+      <!-- Novo marcador: tempo restante para o pôr ou para o nascer, conforme a fase -->
       <p class="tempo-restante" id="tempo-ate-pôr">O Sol se põe em: --:--:--</p>
       <h2>Hora Planetária Atual: <span id="planet-icon">🔆</span> <span id="hora-planetaria">...</span></h2>
       <p class="tempo-restante">Tempo Restante: <span id="cronometro">--:--:--</span></p>
@@ -84,7 +84,8 @@
   
   <script>
     // Mapeamento da primeira hora do dia conforme o dia da semana:
-    // Domingo: "☉ Sol", Segunda: "☽ Lua", Terça: "♂ Marte", Quarta: "☿ Mercúrio", Quinta: "♃ Júpiter", Sexta: "♀ Vênus", Sábado: "♄ Saturno"
+    // Domingo: "☉ Sol", Segunda: "☽ Lua", Terça: "♂ Marte", Quarta: "☿ Mercúrio",
+    // Quinta: "♃ Júpiter", Sexta: "♀ Vênus", Sábado: "♄ Saturno"
     const firstHourMapping = ["☉ Sol", "☽ Lua", "♂ Marte", "☿ Mercúrio", "♃ Júpiter", "♀ Vênus", "♄ Saturno"];
     // Ordem caldeia fixa (do mais lento para o mais rápido)
     const chaldeanOrder = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
@@ -140,10 +141,9 @@
           document.getElementById("sunset-time").innerText = sunsetFormatted;
   
           calculatePlanetaryHours(sunrise, sunset, nextSunrise);
-          // Inicia o marcador de tempo decorrido desde o nascer do sol
-          startElapsedTimeTimer(sunrise);
-          // Inicia o cronômetro para o pôr do sol
-          startTimeUntilSunset(sunset);
+          // Inicia o marcador de tempo decorrido (ou tempo desde o pôr) e o de tempo até o próximo evento
+          startElapsedTimeTimer(sunrise, sunset);
+          startTimeUntilSunset(sunset, nextSunrise);
         })
         .catch(error => {
           console.error("Erro ao obter horários do sol:", error);
@@ -254,13 +254,23 @@
       }, 1000);
     }
   
-    function startElapsedTimeTimer(sunrise) {
+    // Atualiza o marcador de tempo decorrido:
+    // Se o Sol ainda não se pôs (now < sunset): mostra "O Sol nasceu há:" e calcula diff = now - sunrise.
+    // Se já passou do pôr (now >= sunset): mostra "O Sol se pôs há:" e calcula diff = now - sunset.
+    function startElapsedTimeTimer(sunrise, sunset) {
       if (window.elapsedTimeInterval) clearInterval(window.elapsedTimeInterval);
   
       window.elapsedTimeInterval = setInterval(() => {
         let now = new Date();
-        // Se o horário atual for antes do nascer, o tempo decorrido será zero
-        let diff = now - sunrise;
+        let diff;
+        let label;
+        if (now < sunset) {
+          diff = now - sunrise;
+          label = "O Sol nasceu há: ";
+        } else {
+          diff = now - sunset;
+          label = "O Sol se pôs há: ";
+        }
         if (diff < 0) diff = 0;
   
         const totalSeconds = Math.floor(diff / 1000);
@@ -273,16 +283,27 @@
           (minutes < 10 ? "0" + minutes : minutes) + ":" +
           (seconds < 10 ? "0" + seconds : seconds);
   
-        document.getElementById("tempo-passado").innerText = "O Sol nasceu há: " + formatted;
+        document.getElementById("tempo-passado").innerText = label + formatted;
       }, 1000);
     }
   
-    function startTimeUntilSunset(sunset) {
+    // Atualiza o marcador de tempo até o próximo evento:
+    // Se o Sol ainda não se pôs (now < sunset): mostra "O Sol se põe em:" com diff = sunset - now.
+    // Se já passou do pôr (now >= sunset): mostra "O Sol nascerá em:" com diff = nextSunrise - now.
+    function startTimeUntilSunset(sunset, nextSunrise) {
       if (window.sunsetInterval) clearInterval(window.sunsetInterval);
   
       window.sunsetInterval = setInterval(() => {
         let now = new Date();
-        let diff = sunset - now;
+        let diff;
+        let label;
+        if (now < sunset) {
+          diff = sunset - now;
+          label = "O Sol se põe em: ";
+        } else {
+          diff = nextSunrise - now;
+          label = "O Sol nascerá em: ";
+        }
         if (diff < 0) diff = 0;
   
         const totalSeconds = Math.floor(diff / 1000);
@@ -295,7 +316,7 @@
           (minutes < 10 ? "0" + minutes : minutes) + ":" +
           (seconds < 10 ? "0" + seconds : seconds);
   
-        document.getElementById("tempo-ate-pôr").innerText = "O Sol se põe em: " + formatted;
+        document.getElementById("tempo-ate-pôr").innerText = label + formatted;
       }, 1000);
     }
   </script>
