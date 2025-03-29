@@ -74,7 +74,7 @@
       <h2>Planeta Regente: <span id="dia-planetario">...</span></h2>
       <p class="tempo-restante" id="tempo-passado">O Sol nasceu há: --:--:--</p>
       <p class="tempo-restante" id="tempo-ate-pôr">O Sol se põe em: --:--:--</p>
-      <!-- Nova linha com a definição do dia -->
+      <!-- Nova linha com a definição energética do dia -->
       <p class="day-definition" id="day-definition">( )</p>
     </div>
     
@@ -102,8 +102,6 @@
   </div>
   
   <script>
-    // Configuração dos dados para cada dia da semana
-    
     // Mapeamento para o Planeta Regente com deuses:
     const firstHourMapping = [
       "☉ Hélios/Sol",
@@ -118,18 +116,18 @@
     const chaldeanOrder = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
     // Nomes dos dias da semana
     const dayNames = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-    // Definições para cada dia da semana
+    // Definições energéticas para cada dia (somente as frases dentro dos parênteses)
     const dayDefinitions = {
-      "Domingo": "(Sol): Dia de vitalidade, brilho pessoal e liderança. Ideal para rituais de fortalecimento da identidade, sucesso, autoestima e visibilidade.",
-      "Segunda-feira": "(Lua): Ligada às emoções, intuição e memória ancestral. Excelente para práticas de autoconhecimento, cura emocional e conexão com o feminino.",
-      "Terça-feira": "(Marte): Energia de ação, coragem e vontade. Favorável para feitiços de proteção, superação de obstáculos e início de empreitadas ousadas.",
-      "Quarta-feira": "(Mercúrio): Regida pela mente e pela comunicação. Indicado para trabalhos mágicos ligados a estudo, escrita, comércio, viagens e eloquência.",
-      "Quinta-feira": "(Júpiter): Vibração de expansão, sorte e sabedoria. Potente para rituais de crescimento, justiça, gratidão, fé e prosperidade.",
-      "Sexta-feira": "(Vênus): Harmonia, prazer e beleza em destaque. Ótima para encantamentos voltados ao amor, à arte, à autoestima e à atração.",
-      "Sábado": "(Saturno): Estrutura, disciplina e introspecção. Propício para banimentos, encerramentos de ciclos, proteção e fortalecimento espiritual."
+      "Domingo": "Dia de vitalidade, brilho pessoal e liderança. Ideal para rituais de fortalecimento da identidade, sucesso, autoestima e visibilidade.",
+      "Segunda-feira": "Ligada às emoções, intuição e memória ancestral. Excelente para práticas de autoconhecimento, cura emocional e conexão com o feminino.",
+      "Terça-feira": "Energia de ação, coragem e vontade. Favorável para feitiços de proteção, superação de obstáculos e início de empreitadas ousadas.",
+      "Quarta-feira": "Regida pela mente e pela comunicação. Indicado para trabalhos mágicos ligados a estudo, escrita, comércio, viagens e eloquência.",
+      "Quinta-feira": "Vibração de expansão, sorte e sabedoria. Potente para rituais de crescimento, justiça, gratidão, fé e prosperidade.",
+      "Sexta-feira": "Harmonia, prazer e beleza em destaque. Ótima para encantamentos voltados ao amor, à arte, à autoestima e à atração.",
+      "Sábado": "Estrutura, disciplina e introspecção. Propício para banimentos, encerramentos de ciclos, proteção e fortalecimento espiritual."
     };
   
-    // Configurações específicas para cada dia (exemplo: Domingo e Sábado)
+    // Configurações específicas para cada dia (exemplificadas para Domingo e Sábado; os demais podem ser adicionados)
     const dayConfigurations = {
       "Domingo": {
         sequence: ["☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua", "♄ Saturno", "♃ Júpiter", "♂ Marte"],
@@ -189,7 +187,7 @@
           "Hora de aborrecimento e inimizade"                                   // 24ª
         ]
       }
-      // Outras configurações para os demais dias podem ser adicionadas aqui...
+      // Outras configurações podem ser adicionadas conforme necessário
     };
   
     function getLocation() {
@@ -241,7 +239,7 @@
           document.getElementById("sunrise-time").innerText = sunriseFormatted;
           document.getElementById("sunset-time").innerText = sunsetFormatted;
   
-          // Armazena globalmente para o refresh automático
+          // Armazena globalmente para refresh automático
           window.sunrise = sunrise;
           window.sunset = sunset;
           window.nextSunrise = nextSunrise;
@@ -274,7 +272,7 @@
       }
   
       document.getElementById("dia-planetario").innerText = firstHourMapping[startDayIndex];
-      // Atualiza a definição do dia na primeira moldura
+      // Atualiza a definição do dia (apenas a frase)
       document.getElementById("day-definition").innerText = dayDefinitions[dayNames[startDayIndex]];
   
       let config = dayConfigurations[dayNames[startDayIndex]];
