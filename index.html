@@ -51,9 +51,11 @@
     .button:hover {
       background-color: #ffcc29;
     }
+    /* Oculta o status de localização */
     #location-status {
       display: none;
     }
+    /* Cidade e estado em negrito */
     #city-name {
       font-weight: bold;
     }
@@ -100,52 +102,212 @@
   </div>
   
   <script>
-    // Mapeamento para o Dia Planetário com deuses:
-    // Domingo: "☉ Hélios/Sol", Segunda: "☽ Selene/Lua", Terça: "♂ Ares/Marte",
-    // Quarta: "☿ Hermes/Mercúrio", Quinta: "♃ Zeus/Júpiter", Sexta: "♀ Afrodite/Vênus",
-    // Sábado: "♄ Cronos/Saturno"
-    const firstHourMapping = [
-      "☉ Hélios/Sol",
-      "☽ Selene/Lua",
-      "♂ Ares/Marte",
-      "☿ Hermes/Mercúrio",
-      "♃ Zeus/Júpiter",
-      "♀ Afrodite/Vênus",
-      "♄ Cronos/Saturno"
-    ];
-    // Ordem caldeia padrão (não será usada para sábado)
-    const chaldeanOrder = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
-    // Nomes dos dias da semana
-    const dayNames = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-    // Sequência personalizada para sábado (para formar as 24 horas)
-    const saturdaySequence = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
-    // Mensagens para cada hora de sábado (1ª até 24ª)
-    const saturdayMessages = [
-      "Magia ou talismãs para ferir seu inimigo ou enviar doenças",       // 1ª
-      "Pode causar um naufrágio ou prejudicar alguém",                      // 2ª
-      "Para configurar encantamentos",                                      // 3ª
-      "Pode fazer os senhores lutarem entre si",                           // 4ª
-      "Pode causar ódio entre um casal",                                    // 5ª
-      "Pode encontrar o tesouro",                                           // 6ª
-      "Pode falar com demônios",                                             // 7ª
-      "Para realizar a adivinhação da bacia",                               // 8ª
-      "Para realizar a adivinhação do crânio",                                // 9ª
-      "Pode fazer com que os povos mergulhem no mar",                        // 10ª
-      "Pode deixar os litigantes furiosos uns com os outros",                // 11ª
-      "Pode causar medo e inimizade",                                       // 12ª
-      "Benéfico para descobrir segredos",                                  // 13ª
-      "Pode ver pessoas mortas",                                            // 14ª
-      "Para ter visões – adivinhação de água",                               // 15ª
-      "Útil para ensinar",                                                  // 16ª
-      "Hora muito maligna",                                                 // 17ª
-      "Hora inútil",                                                        // 18ª
-      "Para ganhar dinheiro em dados",                                      // 19ª
-      "Pode conter todas as coisas boas",                                   // 20ª
-      "Hora sem virtude",                                                   // 21ª
-      "Pode causar visões",                                                 // 22ª
-      "Útil para lucro",                                                    // 23ª
-      "Hora de aborrecimento e inimizade"                                   // 24ª
-    ];
+    // Configuração dos dados para cada dia da semana
+    const dayConfigurations = {
+      "Domingo": {
+        sequence: ["☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua", "♄ Saturno", "♃ Júpiter", "♂ Marte"],
+        messages: [
+          "Fazendo um discurso",
+          "Ganhando o amor de um senhor",
+          "Para se dirigir aos senhores",
+          "Para um encontro com um senhor",
+          "Pode impedir um encontro com um senhor",
+          "Pode comparecer perante um senhor",
+          "Fazer nada",
+          "Para qualquer coisa sobre senhores",
+          "Para qualquer coisa sobre amor",
+          "Pode escrever uma petição",
+          "Pode fazer um discurso",
+          "Fazer nada",
+          "Pode ajudar os amigos",
+          "Para impedir um discurso",
+          "Pode enviar sonhos a um rei",
+          "Pode enviar sonhos a uma senhora",
+          "Fazer nada",
+          "Trabalhar",
+          "Fazer nada",
+          "Magia ou talismãs para o amor dos senhores",
+          "Para amarrar e restringir outros",
+          "Pode comparecer perante um rei",
+          "Pode aparecer diante de uma senhora",
+          "Descanse, não faça nada"
+        ]
+      },
+      "Segunda-feira": {
+        sequence: ["☽ Lua", "♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio"],
+        messages: [
+          "Magia ou talismãs para comprar e vender",
+          "para doença",
+          "Abrindo uma oficina",
+          "Para restringir uma oficina",
+          "Magia ou talismãs para vender",
+          "Para negociações",
+          "Para viagens e viagens",
+          "Para comprar",
+          "Para vincular e restringir",
+          "Abrir um negócio",
+          "Para prevenir a sorte",
+          "Abrir um negócio",
+          "Descansar",
+          "Para ganhar a vida",
+          "Trabalhe em seus assuntos",
+          "Fazer nada",
+          "Escreva e fale em seu próprio nome",
+          "Ligar, restringir, impedir",
+          "Iniciar qualquer plano",
+          "Descansar",
+          "Mova e agite os assuntos",
+          "Calcule seu plano",
+          "Fazer nada",
+          "Abra sua oficina"
+        ]
+      },
+      "Terça-feira": {
+        sequence: ["♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua", "♄ Saturno", "♃ Júpiter"],
+        messages: [
+          "Magia e talismãs para a vitória na guerra",
+          "Pode pegar saque",
+          "Para exibir habilidades militares",
+          "Pode ir para a guerra",
+          "Para ir e voltar ou batalhas noturnas",
+          "Tenha cuidado, evite a guerra",
+          "Pode aparecer diante dos inimigos ou dar graças",
+          "Pedir ajuda",
+          "Pode conquistar um castelo inteiro e saquear",
+          "Pode fazer atos poderosos",
+          "Pode dar desculpas",
+          "Despojando inimigos mortos",
+          "Tome cuidado",
+          "Pode desacreditar alguém",
+          "Pedir ajuda para sua salvação",
+          "Inútil",
+          "Pode subir em honra",
+          "Para escapar ou esconder",
+          "Pode vencer um adversário",
+          "Pode marchar contra os inimigos",
+          "Pode manter escondido",
+          "Rezar para Deus",
+          "Pode aparecer na guerra",
+          "hora invejável"
+        ]
+      },
+      "Quarta-feira": {
+        sequence: ["☿ Hermes/Mercúrio", "☽ Selene/Lua", "♄ Saturno", "♃ Zeus/Júpiter", "♂ Ares/Marte", "☉ Hélios/Sol", "♀ Afrodite/Vênus"],
+        messages: [
+          "Magia ou talismãs para invisibilidade e educação",
+          "Para descansar e animar",
+          "hora inútil",
+          "Para praticar alquimia",
+          "Pode revelar coisas secretas",
+          "Pode matar alguém e pegar seu tesouro",
+          "Pode dominar uma mulher",
+          "Magia ou talismãs relativos à decisão de um tribunal",
+          "Pode coabitar com uma mulher",
+          "Tome cuidado",
+          "Comece o que quiser",
+          "Fazer nada",
+          "Comece elogiando alguém",
+          "Comece a orar",
+          "Magia e talismãs sobre sonhos",
+          "Para lançar feitiços de ligação",
+          "hora inútil",
+          "Pode prejudicar alguém",
+          "Útil para tudo e fazer retribuição",
+          "útil para tudo",
+          "Para mulheres que curam",
+          "Para ensinar",
+          "Hora do sucesso",
+          "hora inútil"
+        ]
+      },
+      "Quinta-feira": {
+        sequence: ["♃ Zeus/Júpiter", "♂ Ares/Marte", "☉ Hélios/Sol", "♀ Afrodite/Vênus", "☿ Hermes/Mercúrio", "☽ Selene/Lua", "♄ Saturno"],
+        messages: [
+          "Para curar homens ou animais",
+          "hora inútil",
+          "Pode comparecer perante um rei",
+          "Pode aparecer diante de uma senhora",
+          "Para aprender retórica",
+          "Para mudar de residência",
+          "Tome cuidado",
+          "Boa e abençoada hora",
+          "Pode causar ciúmes",
+          "Magia e talismãs para beneficiar o corpo",
+          "Para mulheres que curam",
+          "Pode emigrar",
+          "Para sucesso",
+          "hora inútil",
+          "Hora para todo tipo de cura",
+          "Para fazer uma incisão cirúrgica",
+          "Pode curar um rei",
+          "Pode curar uma senhora",
+          "Pode não ter medo de ladrões",
+          "hora alegre",
+          "hora inútil",
+          "Faça o que você quiser",
+          "Pode causar transtorno",
+          "Magia ou talismãs relativos a tribunais ou senhores"
+        ]
+      },
+      "Sexta-feira": {
+        sequence: ["♀ Afrodite/Vênus", "☿ Hermes/Mercúrio", "☽ Selene/Lua", "♄ Saturno", "♃ Zeus/Júpiter", "♂ Ares/Marte", "☉ Hélios/Sol"],
+        messages: [
+          "Pode amor",
+          "Para mensagens de matchmaking",
+          "Bom para tudo",
+          "Pode causar obstáculos de amor",
+          "Para presentes e conversas agradáveis",
+          "Pode causar ciúmes",
+          "Boa hora, benéfica para o amor",
+          "Pode amor",
+          "Para mensagens sobre compromissos",
+          "Boa hora para tudo",
+          "hora inútil",
+          "Para fazer acordos",
+          "Pode causar ódio",
+          "Para amarrar um casal com um feitiço",
+          "Pode amarrar alguém com feitiços de amor",
+          "Pode enviar sonhos de amor",
+          "Boa hora para tudo",
+          "Pode enviar sonhos de ódio",
+          "Magia e talismãs para qualquer objetivo benéfico",
+          "Fazer nada",
+          "boa hora",
+          "Hora do amor",
+          "Hora da alquimia",
+          "Para amarrar e restringir o amor"
+        ]
+      },
+      "Sábado": {
+        sequence: ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Hélios/Sol", "♀ Afrodite/Vênus", "☿ Hermes/Mercúrio", "☽ Selene/Lua"],
+        messages: [
+          "Magia ou talismãs para ferir seu inimigo ou enviar doenças",
+          "Pode causar um naufrágio ou prejudicar alguém",
+          "Para configurar encantamentos",
+          "Pode fazer os senhores lutarem entre si",
+          "Pode causar ódio entre um casal",
+          "Pode encontrar o tesouro",
+          "Pode falar com demônios",
+          "Para realizar a adivinhação da bacia",
+          "Para realizar a adivinhação do crânio",
+          "Pode fazer com que os povos mergulhem no mar",
+          "Pode deixar os litigantes furiosos uns com os outros",
+          "Pode causar medo e inimizade",
+          "Benéfico para descobrir segredos",
+          "Pode ver pessoas mortas",
+          "Para ter visões – Para adivinhação de água",
+          "Útil para ensinar",
+          "hora muito maligna",
+          "hora inútil",
+          "Para ganhar dinheiro em dados",
+          "Pode conter todas as coisas boas",
+          "Hora sem virtude",
+          "Pode causar visões",
+          "Útil para lucro",
+          "Hora de aborrecimento e inimizade"
+        ]
+      }
+    };
   
     function getLocation() {
       if (navigator.geolocation) {
@@ -225,11 +387,12 @@
   
       document.getElementById("dia-planetario").innerText = firstHourMapping[startDayIndex];
   
+      let config = dayConfigurations[dayNames[startDayIndex]];
+  
       let planetaryHours = [];
-      if (startDayIndex === 6) {
-        // Para sábado, use a sequência personalizada
+      if (config && config.sequence) {
         for (let i = 0; i < 24; i++) {
-          planetaryHours.push(saturdaySequence[i % 7]);
+          planetaryHours.push(config.sequence[i % config.sequence.length]);
         }
       } else {
         let firstHourPlanet = firstHourMapping[startDayIndex];
@@ -255,113 +418,4 @@
         let h = Math.floor((currentTime - sunset) / nightDuration);
         currentHourIndex = 12 + h + 1;
         intervalStart = new Date(sunset.getTime() + h * nightDuration);
-        intervalEnd = new Date(intervalStart.getTime() + nightDuration);
-      } else if (currentTime < sunrise) {
-        currentHourIndex = 24;
-        intervalEnd = sunrise;
-        intervalStart = new Date(sunrise.getTime() - nightDuration);
-      } else {
-        currentHourIndex = 1;
-        intervalStart = nextSunrise;
-        intervalEnd = new Date(nextSunrise.getTime() + dayDuration);
-      }
-  
-      let currentPlanet = planetaryHours[currentHourIndex - 1];
-      let currentParts = currentPlanet.split(" ");
-      document.getElementById("planet-icon").innerText = currentParts[0];
-      document.getElementById("hora-planetaria").innerText = currentParts.slice(1).join(" ");
-  
-      let previousPlanet = planetaryHours[(currentHourIndex - 2 + 24) % 24];
-      document.getElementById("hora-anterior").innerText = previousPlanet;
-  
-      let nextPlanet = planetaryHours[(currentHourIndex) % 24];
-      document.getElementById("proxima-hora").innerText = nextPlanet;
-  
-      startCronometro(intervalEnd);
-  
-      let dayTitle = dayNames[startDayIndex];
-      let ordinal = currentHourIndex + "ª";
-      document.getElementById("info-title").innerText = dayTitle + " - " + ordinal + " Hora";
-  
-      if (startDayIndex === 6) {
-        document.getElementById("info-message").innerText = saturdayMessages[currentHourIndex - 1];
-      } else {
-        document.getElementById("info-message").innerText = "";
-      }
-    }
-  
-    function startCronometro(endTime) {
-      if (window.cronometroInterval) clearInterval(window.cronometroInterval);
-      window.cronometroInterval = setInterval(() => {
-        const now = new Date();
-        const diff = endTime - now;
-        if (diff <= 0) {
-          document.getElementById("cronometro").innerText = "00:00:00";
-          clearInterval(window.cronometroInterval);
-        } else {
-          const totalSeconds = Math.floor(diff / 1000);
-          const hours = Math.floor(totalSeconds / 3600);
-          const minutes = Math.floor((totalSeconds % 3600) / 60);
-          const seconds = totalSeconds % 60;
-          const formatted =
-            (hours < 10 ? "0" + hours : hours) + ":" +
-            (minutes < 10 ? "0" + minutes : minutes) + ":" +
-            (seconds < 10 ? "0" + seconds : seconds);
-          document.getElementById("cronometro").innerText = formatted;
-        }
-      }, 1000);
-    }
-  
-    function startElapsedTimeTimer(sunrise, sunset) {
-      if (window.elapsedTimeInterval) clearInterval(window.elapsedTimeInterval);
-      window.elapsedTimeInterval = setInterval(() => {
-        let now = new Date();
-        let diff, label;
-        if (now < sunset) {
-          diff = now - sunrise;
-          label = "O Sol nasceu há: ";
-        } else {
-          diff = now - sunset;
-          label = "O Sol se pôs há: ";
-        }
-        if (diff < 0) diff = 0;
-        const totalSeconds = Math.floor(diff / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        const formatted =
-          (hours < 10 ? "0" + hours : hours) + ":" +
-          (minutes < 10 ? "0" + minutes : minutes) + ":" +
-          (seconds < 10 ? "0" + seconds : seconds);
-        document.getElementById("tempo-passado").innerText = label + formatted;
-      }, 1000);
-    }
-  
-    function startTimeUntilSunset(sunset, nextSunrise) {
-      if (window.sunsetInterval) clearInterval(window.sunsetInterval);
-      window.sunsetInterval = setInterval(() => {
-        let now = new Date();
-        let diff, label;
-        if (now < sunset) {
-          diff = sunset - now;
-          label = "O Sol se põe em: ";
-        } else {
-          diff = nextSunrise - now;
-          label = "O Sol nascerá em: ";
-        }
-        if (diff < 0) diff = 0;
-        const totalSeconds = Math.floor(diff / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        const formatted =
-          (hours < 10 ? "0" + hours : hours) + ":" +
-          (minutes < 10 ? "0" + minutes : minutes) + ":" +
-          (seconds < 10 ? "0" + seconds : seconds);
-        document.getElementById("tempo-ate-pôr").innerText = label + formatted;
-      }, 1000);
-    }
-  </script>
-  
-</body>
-</html>
+        intervalEnd =
