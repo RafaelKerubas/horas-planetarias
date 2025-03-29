@@ -26,13 +26,14 @@
       color: #f8b400;
       margin-bottom: 10px;
     }
+    /* Molduras para os campos */
     .planet-info {
       margin: 20px 0;
       padding: 15px;
       background: rgba(15, 52, 96, 0.8);
       border-radius: 5px;
     }
-    .tempo-restante, .adjacent-hours {
+    .tempo-restante, .adjacent-hours, #info-message {
       color: #f8b400;
       font-size: 0.8em;
       margin-top: 5px;
@@ -222,12 +223,11 @@
         startDayIndex = today.getDay();
       }
   
-      // Exibe o Dia Planetário com o mapeamento dos deuses
       document.getElementById("dia-planetario").innerText = firstHourMapping[startDayIndex];
   
       let planetaryHours = [];
       if (startDayIndex === 6) {
-        // Se for sábado, use a sequência personalizada
+        // Para sábado, use a sequência personalizada
         for (let i = 0; i < 24; i++) {
           planetaryHours.push(saturdaySequence[i % 7]);
         }
@@ -279,12 +279,10 @@
   
       startCronometro(intervalEnd);
   
-      // Atualiza a terceira moldura com o título "Dia da Semana - (ordinal) Hora"
       let dayTitle = dayNames[startDayIndex];
       let ordinal = currentHourIndex + "ª";
       document.getElementById("info-title").innerText = dayTitle + " - " + ordinal + " Hora";
   
-      // Se for sábado, exibe a mensagem definida para aquela hora
       if (startDayIndex === 6) {
         document.getElementById("info-message").innerText = saturdayMessages[currentHourIndex - 1];
       } else {
