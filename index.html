@@ -1,11 +1,3 @@
-function showPosition(position) {
-  document.getElementById("location-status").innerText = "Localização detectada.";
-  let lat = position.coords.latitude;
-  let lon = position.coords.longitude;
-  getSunTimes(lat, lon);
-  getCityName(lat, lon);
-  updateMoonInfo(lat, lon); // Atualiza a moldura lunar
-}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -77,31 +69,37 @@ function showPosition(position) {
     <h1>Horas Planetárias</h1>
     <p>Confira o dia e a hora planetária atual baseado na sua localização.</p>
     
-    <!-- Primeira moldura: Planeta Regente -->
+    <!-- Moldura 1: Planeta Regente -->
     <div class="planet-info" id="dia-planetario-container">
       <h2>Planeta Regente: <span id="dia-planetario">...</span></h2>
       <!-- Day-definition logo abaixo do título -->
       <p class="day-definition" id="day-definition">( )</p>
-      <!-- Cronômetros combinados em uma única linha -->
       <p class="tempo-restante" id="tempo-timers">
         <span id="tempo-passado">O Sol nasceu há: --:--:--</span> | 
         <span id="tempo-ate-pôr">O Sol se põe em: --:--:--</span>
       </p>
     </div>
     
-    <!-- Segunda moldura: Informações adicionais -->
+    <!-- Moldura 2: Informações adicionais -->
     <div class="planet-info" id="info-container">
       <h2 id="info-title">...</h2>
       <p id="info-message"></p>
     </div>
     
-    <!-- Terceira moldura: Hora Planetária Atual -->
+    <!-- Moldura 3: Hora Planetária Atual -->
     <div class="planet-info" id="hora-planetaria-container">
       <h2>Hora Planetária Atual: <span id="planet-icon">🔆</span> <span id="hora-planetaria">...</span></h2>
       <p class="tempo-restante">Tempo Restante: <span id="cronometro">--:--:--</span></p>
       <p class="adjacent-hours">
         Hora Anterior: <span id="hora-anterior">...</span> | Próxima Hora: <span id="proxima-hora">...</span>
       </p>
+    </div>
+    
+    <!-- Moldura 4: Fases da Lua & Signo Luar -->
+    <div class="planet-info" id="lua-info-container">
+      <h2>Fases da Lua & Signo Luar</h2>
+      <p class="tempo-restante" id="lua-phase">Fase da Lua: --</p>
+      <p class="tempo-restante" id="lua-sign">Signo Luar: --</p>
     </div>
     
     <button class="button" onclick="getLocation()">Detectar Localização</button>
@@ -113,9 +111,7 @@ function showPosition(position) {
   </div>
   
   <script>
-    // Configurações dos dados para cada dia da semana
-
-    // Mapeamento para o Planeta Regente com deuses:
+    // Declaração das configurações
     const firstHourMapping = [
       "☉ Hélios/Sol",
       "☽ Selene/Lua",
@@ -125,11 +121,8 @@ function showPosition(position) {
       "♀ Afrodite/Vênus",
       "♄ Cronos/Saturno"
     ];
-    // Ordem caldeia padrão
     const chaldeanOrder = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
-    // Nomes dos dias da semana
     const dayNames = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-    // Definições para cada dia (apenas as frases)
     const dayDefinitions = {
       "Domingo": "Dia de vitalidade, brilho pessoal e liderança. Ideal para rituais de fortalecimento da identidade, sucesso, autoestima e visibilidade.",
       "Segunda-feira": "Ligada às emoções, intuição e memória ancestral. Excelente para práticas de autoconhecimento, cura emocional e conexão com o feminino.",
@@ -139,8 +132,7 @@ function showPosition(position) {
       "Sexta-feira": "Harmonia, prazer e beleza em destaque. Ótima para encantamentos voltados ao amor, à arte, à autoestima e à atração.",
       "Sábado": "Estrutura, disciplina e introspecção. Propício para banimentos, encerramentos de ciclos, proteção e fortalecimento espiritual."
     };
-  
-    // Configurações específicas para cada dia (exemplo: Domingo e Sábado)
+    // Exemplo de configurações para Domingo e Sábado (os demais podem ser adicionados conforme necessário)
     const dayConfigurations = {
       "Domingo": {
         sequence: ["☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua", "♄ Saturno", "♃ Júpiter", "♂ Marte"],
@@ -200,7 +192,7 @@ function showPosition(position) {
           "Hora de aborrecimento e inimizade"                                   // 24ª
         ]
       }
-      // Outras configurações para os demais dias podem ser adicionadas...
+      // Outras configurações podem ser adicionadas aqui...
     };
   
     function getLocation() {
@@ -217,6 +209,7 @@ function showPosition(position) {
       let lon = position.coords.longitude;
       getSunTimes(lat, lon);
       getCityName(lat, lon);
+      updateMoonInfo(lat, lon);
     }
   
     function getCityName(lat, lon) {
@@ -252,7 +245,6 @@ function showPosition(position) {
           document.getElementById("sunrise-time").innerText = sunriseFormatted;
           document.getElementById("sunset-time").innerText = sunsetFormatted;
   
-          // Armazena valores globalmente para o refresh automático
           window.sunrise = sunrise;
           window.sunset = sunset;
           window.nextSunrise = nextSunrise;
@@ -285,7 +277,6 @@ function showPosition(position) {
       }
   
       document.getElementById("dia-planetario").innerText = firstHourMapping[startDayIndex];
-      // Atualiza a definição do dia (apenas a frase)
       document.getElementById("day-definition").innerText = dayDefinitions[dayNames[startDayIndex]];
   
       let config = dayConfigurations[dayNames[startDayIndex]];
@@ -359,7 +350,6 @@ function showPosition(position) {
         if (diff <= 0) {
           document.getElementById("cronometro").innerText = "00:00:00";
           clearInterval(window.cronometroInterval);
-          // Atualiza automaticamente para a próxima hora
           calculatePlanetaryHours(window.sunrise, window.sunset, window.nextSunrise);
         } else {
           const totalSeconds = Math.floor(diff / 1000);
@@ -423,6 +413,51 @@ function showPosition(position) {
           (seconds < 10 ? "0" + seconds : seconds);
         document.getElementById("tempo-ate-pôr").innerText = label + formatted;
       }, 1000);
+    }
+  
+    // Função para atualizar as informações lunares usando o Open‑Meteo Astronomy
+    function updateMoonInfo(lat, lon) {
+      const url = `https://api.open-meteo.com/v1/astronomy?latitude=${lat}&longitude=${lon}&timezone=auto`;
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const astro = data.astronomy.astro;
+          const moonPhaseValue = astro.moon_phase; // valor entre 0 e 1
+          let phaseName = "";
+          let phaseIcon = "";
+          if (moonPhaseValue < 0.125) {
+            phaseName = "New Moon";
+            phaseIcon = "🌑";
+          } else if (moonPhaseValue < 0.25) {
+            phaseName = "Waxing Crescent";
+            phaseIcon = "🌒";
+          } else if (moonPhaseValue < 0.375) {
+            phaseName = "First Quarter";
+            phaseIcon = "🌓";
+          } else if (moonPhaseValue < 0.5) {
+            phaseName = "Waxing Gibbous";
+            phaseIcon = "🌔";
+          } else if (moonPhaseValue < 0.625) {
+            phaseName = "Full Moon";
+            phaseIcon = "🌕";
+          } else if (moonPhaseValue < 0.75) {
+            phaseName = "Waning Gibbous";
+            phaseIcon = "🌖";
+          } else if (moonPhaseValue < 0.875) {
+            phaseName = "Last Quarter";
+            phaseIcon = "🌗";
+          } else {
+            phaseName = "Waning Crescent";
+            phaseIcon = "🌘";
+          }
+          document.getElementById("lua-phase").innerText = "Fase da Lua: " + phaseIcon + " " + phaseName;
+          document.getElementById("lua-sign").innerText = "Signo Luar: --";
+        })
+        .catch(error => {
+          console.error("Erro ao obter informações lunares:", error);
+          document.getElementById("lua-phase").innerText = "Fase da Lua: Erro";
+          document.getElementById("lua-sign").innerText = "Signo Luar: Erro";
+        });
     }
   </script>
   
