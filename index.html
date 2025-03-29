@@ -71,9 +71,9 @@
     <h1>Horas Planetárias</h1>
     <p>Confira o dia e a hora planetária atual baseado na sua localização.</p>
     
-    <!-- Moldura para o Dia Planetário -->
+    <!-- Moldura para o Planeta Regente (anteriormente "Dia Planetário") -->
     <div class="planet-info" id="dia-planetario-container">
-      <h2>Dia Planetário: <span id="dia-planetario">...</span></h2>
+      <h2>Planeta Regente: <span id="dia-planetario">...</span></h2>
       <p class="tempo-restante" id="tempo-passado">O Sol nasceu há: --:--:--</p>
       <p class="tempo-restante" id="tempo-ate-pôr">O Sol se põe em: --:--:--</p>
     </div>
@@ -102,7 +102,7 @@
   </div>
   
   <script>
-    // Configurações dos dias (para este exemplo, só usamos os dados de sábado e os demais padrão)
+    // Configuração dos dados para cada dia da semana
     const dayConfigurations = {
       "Domingo": {
         sequence: ["☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua", "♄ Saturno", "♃ Júpiter", "♂ Marte"],
@@ -133,7 +133,7 @@
           "Descanse, não faça nada"
         ]
       },
-      // Configurações para os demais dias... (omiti para brevidade)
+      // Configurações para os demais dias omitidas para brevidade; veja as listagens anteriores.
       "Sábado": {
         sequence: ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"],
         messages: [
@@ -217,7 +217,7 @@
           document.getElementById("sunrise-time").innerText = sunriseFormatted;
           document.getElementById("sunset-time").innerText = sunsetFormatted;
   
-          // Armazena globalmente para refresh automático
+          // Armazena valores globalmente para o refresh automático
           window.sunrise = sunrise;
           window.sunset = sunset;
           window.nextSunrise = nextSunrise;
@@ -251,7 +251,6 @@
   
       document.getElementById("dia-planetario").innerText = firstHourMapping[startDayIndex];
   
-      // Seleciona a configuração para o dia atual, se existir; caso contrário, usa sequência padrão baseada no mapeamento
       let config = dayConfigurations[dayNames[startDayIndex]];
       let planetaryHours = [];
       if (config && config.sequence) {
@@ -323,7 +322,7 @@
         if (diff <= 0) {
           document.getElementById("cronometro").innerText = "00:00:00";
           clearInterval(window.cronometroInterval);
-          // Quando o cronômetro termina, atualiza automaticamente as informações para a próxima hora
+          // Atualiza as informações para a próxima hora automaticamente
           calculatePlanetaryHours(window.sunrise, window.sunset, window.nextSunrise);
         } else {
           const totalSeconds = Math.floor(diff / 1000);
