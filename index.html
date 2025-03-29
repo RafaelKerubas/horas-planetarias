@@ -78,7 +78,7 @@
       width: 100%;
       text-align: left;
     }
-    /* Atualização: círculo branco atrás do ícone da Lua */
+    /* Contorno esmaecido para o ícone da Lua com pseudo-elemento */
     #lua-icon {
       position: relative;
       display: inline-block;
@@ -92,16 +92,16 @@
       top: 50%; 
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 1em; /* ligeiramente maior */
-      height: 1em;
-      background: #fff;
+      width: 1.2em;
+      height: 1.2em;
+      background: rgba(255, 255, 255, 0.5); /* Esmaecido e leve */
       border-radius: 50%;
       z-index: -1;
     }
     #lua-eclipse {
       margin-top: 5px;
     }
-    /* Container para o botão (único) */
+    /* Container para o botão */
     .button-container {
       margin-top: 10px;
     }
@@ -127,6 +127,15 @@
     /* Oculta os módulos até a localização ser detectada */
     #info-all {
       display: none;
+    }
+    @media (max-width: 600px) {
+      #lua-icon {
+        font-size: 1.5em;
+      }
+      #lua-icon::before {
+        width: 1.3em;
+        height: 1.3em;
+      }
     }
     @media (max-width: 768px) {
       .container {
@@ -207,8 +216,8 @@
         Nascer do Sol: <span id="sunrise-time">--:--</span> | Pôr do Sol: <span id="sunset-time">--:--</span>
       </p>
       
-      <!-- Mover o botão para a parte inferior -->
-      <div class="button-container" id="button-top"></div>
+      <!-- Move o botão único para o final do conteúdo -->
+      <div class="button-container" id="button-bottom"></div>
     </div>
   </div>
   
@@ -366,7 +375,7 @@
       updateMoonInfo(lat, lon);
       // Exibe os módulos adicionais
       document.getElementById("info-all").style.display = "block";
-      // Move o botão único para o final do conteúdo
+      // Move o botão único (id "button-top") para o final do conteúdo
       document.getElementById("info-all").appendChild(document.getElementById("button-top"));
     }
 
