@@ -78,8 +78,15 @@
       width: 100%;
       text-align: left;
     }
+    /* Atualização para contorno circular do ícone da Lua */
     #lua-icon {
       font-size: 2em;
+      display: inline-block;
+      width: 2.5em;
+      height: 2.5em;
+      line-height: 2.5em;
+      border: 1px solid white;
+      border-radius: 50%;
     }
     #lua-eclipse {
       margin-top: 5px;
@@ -127,16 +134,16 @@
 </head>
 <body>
   <div class="container">
-    <!-- Cabeçalho fixo e mensagem introdutória -->
+    <!-- Conteúdo inicial -->
     <h1>Horas Planetárias</h1>
     <p>Confira o dia e a hora planetária atual baseado na sua localização.</p>
     
-    <!-- Botão Detectar Localização (sempre visível) -->
+    <!-- Botão Detectar Localização -->
     <div class="button-container">
       <button class="button" onclick="getLocation()">Detectar Localização</button>
     </div>
     
-    <!-- Bloco com os demais módulos, inicialmente oculto -->
+    <!-- Bloco oculto com os demais módulos -->
     <div id="info-all">
       <!-- Módulo Planeta Regente -->
       <div class="planet-info" id="dia-planetario-container">
@@ -183,7 +190,7 @@
         </p>
       </div>
       
-      <!-- Dados extras: Cidade e Horários -->
+      <!-- Dados extras -->
       <p id="location-status">Localização não detectada.</p>
       <p id="city-name">Cidade não detectada.</p>
       <p id="sunrise-sunset">
@@ -344,7 +351,7 @@
       getSunTimes(lat, lon);
       getCityName(lat, lon);
       updateMoonInfo(lat, lon);
-      // Os demais módulos serão revelados abaixo
+      // Exibe os demais módulos após a localização ser obtida
       document.getElementById("info-all").style.display = "block";
     }
 
@@ -585,7 +592,7 @@
       if (currentEvent) {
         let signName = extractSign(currentEvent.info);
         if (todayStr === currentEvent.date) {
-          // Se for o dia exato do evento, exibe o evento completo
+          // Se for o dia do evento, exibe o evento completo
           let dashIndex = currentEvent.info.indexOf("–");
           if (dashIndex !== -1) {
             let eclipseInfo = currentEvent.info.substring(dashIndex + 1).trim();
