@@ -51,7 +51,7 @@
     .button:hover {
       background-color: #ffcc29;
     }
-    /* Oculta a mensagem de status de localização */
+    /* Oculta o status de localização */
     #location-status {
       display: none;
     }
@@ -106,7 +106,7 @@
       "♃ Zeus/Júpiter",
       "♀ Afrodite/Vênus"
     ];
-    // Ordem caldeia fixa (do mais lento para o mais rápido) permanece inalterada
+    // Ordem caldeia fixa (do mais lento para o mais rápido)
     const chaldeanOrder = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
   
     function getLocation() {
@@ -118,7 +118,6 @@
     }
   
     function showPosition(position) {
-      // Oculta os dados de latitude e longitude; exibe apenas "Localização detectada."
       document.getElementById("location-status").innerText = "Localização detectada.";
       let lat = position.coords.latitude;
       let lon = position.coords.longitude;
@@ -152,7 +151,6 @@
         .then(data => {
           let sunrise = new Date(data.daily.sunrise[0]);
           let sunset = new Date(data.daily.sunset[0]);
-          // nextSunrise é 24h após o nascer de hoje, conforme fornecido pela API
           let nextSunrise = new Date(sunrise.getTime() + 24 * 60 * 60 * 1000);
   
           let sunriseFormatted = sunrise.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -161,7 +159,6 @@
           document.getElementById("sunset-time").innerText = sunsetFormatted;
   
           calculatePlanetaryHours(sunrise, sunset, nextSunrise);
-          // Inicia os marcadores de tempo:
           startElapsedTimeTimer(sunrise, sunset);
           startTimeUntilSunset(sunset, nextSunrise);
         })
@@ -175,68 +172,57 @@
     function calculatePlanetaryHours(sunrise, sunset, nextSunrise) {
       let today = new Date();
       let currentTime = today;
-      let startDayIndex; // Índice para determinar o dia (para a sequência planetária)
+      let startDayIndex;
   
-      // Se o horário atual for antes do nascer, usamos os horários do dia anterior
       if (currentTime < sunrise) {
         let prevSunrise = new Date(sunrise.getTime() - 24 * 60 * 60 * 1000);
         let prevSunset = new Date(sunset.getTime() - 24 * 60 * 60 * 1000);
-        nextSunrise = sunrise; // próximo nascer é o de hoje
+        nextSunrise = sunrise;
         sunrise = prevSunrise;
         sunset = prevSunset;
-        startDayIndex = (today.getDay() + 6) % 7; // dia anterior
+        startDayIndex = (today.getDay() + 6) % 7;
       } else {
         startDayIndex = today.getDay();
       }
   
-      // Exibe o Dia Planetário conforme o mapeamento da primeira hora (agora com deuses)
       document.getElementById("dia-planetario").innerText = firstHourMapping[startDayIndex];
   
-      // Define o planeta que rege a primeira hora do dia a partir do mapeamento
       let firstHourPlanet = firstHourMapping[startDayIndex];
-      // Procura esse planeta na ordem caldeia para determinar o ponto de partida
-      let firstHourIndex = chaldeanOrder.indexOf(firstHourPlanet.split(" ")[1]); 
-      // Aqui usamos .split(" ")[1] para extrair o segundo termo (por exemplo, de "♄ Cronos/Saturno", usamos "Cronos/Saturno")
-      // Entretanto, se preferir usar o ícone, pode-se ajustar conforme necessário.
+      // Extrai o ícone (primeiro caractere) para encontrar o índice correto em chaldeanOrder
+      let icon = firstHourPlanet.charAt(0);
+      let firstHourIndex = chaldeanOrder.findIndex(el => el.startsWith(icon));
   
-      // Gera a sequência de 24 horas planetárias (usando a ordem caldeia)
       let planetaryHours = [];
       for (let i = 0; i < 24; i++) {
         planetaryHours.push(chaldeanOrder[(firstHourIndex + i) % 7]);
       }
   
-      // Divide o período em 12 horas diurnas e 12 noturnas
       let dayDuration = (sunset - sunrise) / 12;
       let nightDuration = (nextSunrise - sunset) / 12;
   
       let intervalStart, intervalEnd;
-      let currentHourIndex; // Índice 1-based (de 1 a 24)
+      let currentHourIndex;
   
       if (currentTime >= sunrise && currentTime < sunset) {
-        // Período diurno
-        let h = Math.floor((currentTime - sunrise) / dayDuration); // 0 a 11
-        currentHourIndex = h + 1; // 1 a 12
+        let h = Math.floor((currentTime - sunrise) / dayDuration);
+        currentHourIndex = h + 1;
         intervalStart = new Date(sunrise.getTime() + h * dayDuration);
         intervalEnd = new Date(intervalStart.getTime() + dayDuration);
       } else if (currentTime >= sunset && currentTime < nextSunrise) {
-        // Período noturno
-        let h = Math.floor((currentTime - sunset) / nightDuration); // 0 a 11
-        currentHourIndex = 12 + h + 1; // 13 a 24
+        let h = Math.floor((currentTime - sunset) / nightDuration);
+        currentHourIndex = 12 + h + 1;
         intervalStart = new Date(sunset.getTime() + h * nightDuration);
         intervalEnd = new Date(intervalStart.getTime() + nightDuration);
       } else if (currentTime < sunrise) {
-        // Antes do nascer: última hora (24)
         currentHourIndex = 24;
         intervalEnd = sunrise;
         intervalStart = new Date(sunrise.getTime() - nightDuration);
       } else {
-        // Caso incomum: após o próximo nascer
         currentHourIndex = 1;
         intervalStart = nextSunrise;
         intervalEnd = new Date(nextSunrise.getTime() + dayDuration);
       }
   
-      // Atualiza os elementos da interface usando o índice 1-based:
       let currentPlanet = planetaryHours[currentHourIndex - 1];
       let currentParts = currentPlanet.split(" ");
       document.getElementById("planet-icon").innerText = currentParts[0];
@@ -248,7 +234,6 @@
       let nextPlanet = planetaryHours[(currentHourIndex) % 24];
       document.getElementById("proxima-hora").innerText = nextPlanet;
   
-      // Inicia o cronômetro para o término do intervalo da hora atual
       startCronometro(intervalEnd);
     }
   
@@ -265,7 +250,7 @@
           const hours = Math.floor(totalSeconds / 3600);
           const minutes = Math.floor((totalSeconds % 3600) / 60);
           const seconds = totalSeconds % 60;
-          const formatted = 
+          const formatted =
             (hours < 10 ? "0" + hours : hours) + ":" +
             (minutes < 10 ? "0" + minutes : minutes) + ":" +
             (seconds < 10 ? "0" + seconds : seconds);
@@ -274,8 +259,6 @@
       }, 1000);
     }
   
-    // Atualiza o marcador de tempo decorrido:
-    // Se o Sol ainda não se pôs: "O Sol nasceu há:"; se já passou do pôr: "O Sol se pôs há:"
     function startElapsedTimeTimer(sunrise, sunset) {
       if (window.elapsedTimeInterval) clearInterval(window.elapsedTimeInterval);
       window.elapsedTimeInterval = setInterval(() => {
@@ -293,7 +276,7 @@
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
-        const formatted = 
+        const formatted =
           (hours < 10 ? "0" + hours : hours) + ":" +
           (minutes < 10 ? "0" + minutes : minutes) + ":" +
           (seconds < 10 ? "0" + seconds : seconds);
@@ -301,8 +284,6 @@
       }, 1000);
     }
   
-    // Atualiza o marcador de tempo até o próximo evento:
-    // Se o Sol ainda não se pôs: "O Sol se põe em:"; se já passou do pôr: "O Sol nascerá em:"
     function startTimeUntilSunset(sunset, nextSunrise) {
       if (window.sunsetInterval) clearInterval(window.sunsetInterval);
       window.sunsetInterval = setInterval(() => {
@@ -320,7 +301,7 @@
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
-        const formatted = 
+        const formatted =
           (hours < 10 ? "0" + hours : hours) + ":" +
           (minutes < 10 ? "0" + minutes : minutes) + ":" +
           (seconds < 10 ? "0" + seconds : seconds);
