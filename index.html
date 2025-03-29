@@ -33,9 +33,14 @@
       padding: 15px;
       background: rgba(15, 52, 96, 0.8);
       border-radius: 5px;
+      margin-bottom: 5px;
     }
     /* Ajuste de margens para aproximar os containers */
     #dia-planetario-container {
+      margin-bottom: 5px;
+    }
+    /* Novo módulo: Kit Planetário */
+    #kit-planetario-container {
       margin-bottom: 5px;
     }
     .row {
@@ -58,9 +63,8 @@
       font-size: 0.8em;
       margin-top: 5px;
     }
-    /* Módulo "A Lua Hoje" - detalhes */
+    /* Módulo "A Lua Hoje" */
     #lua-info-container {
-      /* Flex para alinhar o ícone e os dados lado a lado */
       display: flex;
       flex-direction: column;
       align-items: flex-start;
@@ -83,7 +87,6 @@
     #lua-eclipse {
       margin-top: 5px;
     }
-    /* O Eclipse em negrito será aplicado via innerHTML, não via CSS fixo */
     .button {
       padding: 12px 24px;
       font-size: 16px;
@@ -130,6 +133,12 @@
         <span id="tempo-passado">O Sol nasceu há: --:--:--</span> | 
         <span id="tempo-ate-pôr">O Sol se põe em: --:--:--</span>
       </p>
+    </div>
+    
+    <!-- Novo módulo: Kit Planetário de hoje -->
+    <div class="planet-info" id="kit-planetario-container">
+      <h2>Kit Planetário de hoje</h2>
+      <div id="kit-content">Carregando...</div>
     </div>
     
     <!-- Linha com duas colunas: Informações adicionais e A Lua Hoje -->
@@ -255,60 +264,52 @@
       // Outras configurações podem ser adicionadas conforme necessário
     };
 
-    // Calendário Lunar de 2025
-    const lunarCalendar = [
-      { date: "2025-03-06", info: "Lua Crescente em Gêmeos, 6 de março, às 13h31 (horário de Brasília)" },
-      { date: "2025-03-14", info: "Lua Cheia em Virgem – Eclipse Lunar, 14 de março, às 3h54" },
-      { date: "2025-03-22", info: "Lua Minguante em Capricórnio, 22 de março, às 8h29" },
-      { date: "2025-03-29", info: "Lua Nova em Áries – Eclipse Solar, 29 de março, às 7h57" },
-      { date: "2025-04-04", info: "Lua Crescente em Câncer, 4 de abril, às 23h14 (horário de Brasília)" },
-      { date: "2025-04-12", info: "Lua Cheia em Libra, 12 de abril, às 21h22" },
-      { date: "2025-04-20", info: "Lua Minguante em Aquário, 20 de abril, às 22h35" },
-      { date: "2025-04-27", info: "Lua Nova em Touro, 27 de abril, às 16h31" },
-      { date: "2025-05-04", info: "Lua Crescente em Leão, 4 de maio, às 10h51 (horário de Brasília)" },
-      { date: "2025-05-12", info: "Lua Cheia em Escorpião, 12 de maio, às 13h55" },
-      { date: "2025-05-20", info: "Lua Minguante em Aquário, 20 de maio, às 8h58" },
-      { date: "2025-05-27", info: "Lua Nova em Gêmeos, 27 de maio, à 0h02" },
-      { date: "2025-06-03", info: "Lua Crescente em Virgem, 3 de junho, à 0h40 (horário de Brasília)" },
-      { date: "2025-06-11", info: "Lua Cheia em Sagitário, 11 de junho, às 4h43" },
-      { date: "2025-06-18", info: "Lua Minguante em Peixes, 18 de junho, às 16h19" },
-      { date: "2025-06-25", info: "Lua Nova em Câncer, 25 de junho, às 7h31" },
-      { date: "2025-07-02", info: "Lua Crescente em Libra, 2 de julho, às 16h30 (horário de Brasília)" },
-      { date: "2025-07-10", info: "Lua Cheia em Capricórnio, 10 de julho, às 17h36" },
-      { date: "2025-07-17", info: "Lua Minguante em Áries, 17 de julho, às 21h37" },
-      { date: "2025-07-24", info: "Lua Nova em Leão, 24 de julho, às 16h11" },
-      { date: "2025-08-01", info: "Lua Crescente em Escorpião, 1º de agosto, às 9h41 (horário de Brasília)" },
-      { date: "2025-08-09", info: "Lua Cheia em Aquário, 9 de agosto, às 4h55" },
-      { date: "2025-08-16", info: "Lua Minguante em Touro, 16 de agosto, às 2h12" },
-      { date: "2025-08-23", info: "Lua Nova em Virgem, 23 de agosto, às 3h06" },
-      { date: "2025-08-31", info: "Lua Crescente em Sagitário, 31 de agosto, às 3h25" },
-      { date: "2025-09-07", info: "Lua Cheia em Peixes – Eclipse Lunar, 7 de setembro, às 15h08" },
-      { date: "2025-09-14", info: "Lua Minguante em Gêmeos, 14 de setembro, às 7h32" },
-      { date: "2025-09-21", info: "Lua Nova em Virgem – Eclipse Solar, 21 de setembro, às 16h54" },
-      { date: "2025-09-29", info: "Lua Crescente em Capricórnio, 29 de setembro, às 20h53" },
-      { date: "2025-10-07", info: "Lua Cheia em Áries, 7 de outubro, à 0h47" },
-      { date: "2025-10-13", info: "Lua Minguante em Câncer, 13 de outubro, às 15h12" },
-      { date: "2025-10-21", info: "Lua Nova em Libra, 21 de outubro, às 9h25" },
-      { date: "2025-10-29", info: "Lua Crescente em Aquário, 29 de outubro, às 13h20" },
-      { date: "2025-11-05", info: "Lua Cheia em Touro, 5 de novembro, às 10h19" },
-      { date: "2025-11-12", info: "Lua Minguante em Leão, 12 de novembro, às 2h28" },
-      { date: "2025-11-20", info: "Lua Nova em Escorpião, 20 de novembro, às 3h47" },
-      { date: "2025-11-28", info: "Lua Crescente em Peixes, 28 de novembro, às 3h58" },
-      { date: "2025-12-04", info: "Lua Cheia em Gêmeos, 4 de dezembro, às 20h14" },
-      { date: "2025-12-11", info: "Lua Minguante em Virgem, 11 de dezembro, às 17h51" },
-      { date: "2025-12-19", info: "Lua Nova em Sagitário, 19 de dezembro, às 22h43" },
-      { date: "2025-12-27", info: "Lua Crescente em Áries, 27 de dezembro, às 16h09" }
-    ];
-
-    // Função para formatar a data do eclipse (ex: "2025-03-29" para "29 de março de 2025")
-    function formatEclipseDate(dateStr) {
-      const dateObj = new Date(dateStr);
-      const day = dateObj.getUTCDate();
-      const monthNames = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
-      const month = monthNames[dateObj.getUTCMonth()];
-      const year = dateObj.getUTCFullYear();
-      return `${day} de ${month} de ${year}`;
-    }
+    // Detalhes do Kit Planetário para cada planeta (usado para atualizar o novo módulo)
+    const kitDetails = {
+      "Sol": {
+        vela: "Dourada, Amarela, Laranja",
+        incenso: "Olíbano (Frankincense), Alecrim, Canela, Girassol",
+        pedras: "Olho de Tigre, Citrino, Topázio Imperial, Âmbar, Granada",
+        usos: "Vitalidade, poder pessoal, sucesso, cura, liderança"
+      },
+      "Lua": {
+        vela: "Branca, Prata, Azul Claro",
+        incenso: "Jasmim, Sândalo Branco, Camomila, Mirra",
+        pedras: "Pedra da Lua, Selenita, Pérola, Opala Branca, Quartzo Leitoso",
+        usos: "Intuição, emoções, sonhos, proteção psíquica, fertilidade"
+      },
+      "Marte": {
+        vela: "Vermelha, Escarlate",
+        incenso: "Cravo, Gengibre, Pimenta-Do-Reino, Arruda",
+        pedras: "Jaspe Vermelho, Granada",
+        alternativas: "Rubi, Coral Vermelho, Hematita",
+        usos: "Ação, coragem, proteção, energia, combate espiritual"
+      },
+      "Mercúrio": {
+        vela: "Amarela, Laranja, Cinza",
+        incenso: "Lavanda, Hortelã, Erva-Doce, Anis",
+        pedras: "Ágata, Fluorita, Citrino, Turquesa",
+        usos: "Comunicação, raciocínio, aprendizado, escrita, comércio"
+      },
+      "Júpiter": {
+        vela: "Azul Royal, Roxa, Verde",
+        incenso: "Benjoim, Noz-Moscada, Cedro, Sálvia",
+        pedras: "Ametista, Lápis-Lazúli, Safira, Sodalita, Olho de Falcão",
+        usos: "Expansão, prosperidade, sorte, sabedoria espiritual"
+      },
+      "Vênus": {
+        vela: "Rosa, Verde, Cobre",
+        incenso: "Rosa, Patchouli, Sândalo Rosa, Baunilha",
+        pedras: "Quartzo Rosa, Esmeralda, Jade, Malaquita, Rodocrosita",
+        usos: "Amor, beleza, prazer, harmonia, arte, magnetismo pessoal"
+      },
+      "Saturno": {
+        vela: "Preta, Cinza, Azul Escuro",
+        incenso: "Mirra, Cipreste, Vetiver, Pinho",
+        pedras: "Ônix, Obsidiana, Turmalina Preta, Hematita, Safira Negra",
+        usos: "Estrutura, proteção, banimento, introspecção, disciplina"
+      }
+    };
 
     // Função para obter a localização
     function getLocation() {
@@ -327,6 +328,7 @@
       getSunTimes(lat, lon);
       getCityName(lat, lon);
       updateMoonInfo(lat, lon);
+      updateKitPlanetario();  // Atualiza o kit após definir o planeta regente
     }
 
     function getCityName(lat, lon) {
@@ -519,9 +521,8 @@
 
     // Atualiza informações lunares usando SunCalc.
     // Em "lua-icon": exibe o ícone da fase.
-    // Em "lua-sign": se hoje for o dia do evento, exibe o nome do signo;
-    // em "lua-eclipse": se houver eclipse, exibe os dados do eclipse em negrito.
-    // Se não for o dia do evento, exibe somente o nome do signo.
+    // Em "lua-sign" e "lua-eclipse": se hoje for o dia do evento, exibe o nome do signo e, se houver eclipse, os dados do eclipse em negrito;
+    // caso contrário, exibe apenas o nome do signo.
     function updateMoonInfo(lat, lon) {
       const moonIllum = SunCalc.getMoonIllumination(new Date());
       const phase = moonIllum.phase;
@@ -563,9 +564,7 @@
       }
       if (currentEvent) {
         if (todayStr === currentEvent.date) {
-          // Exibe o nome do signo e, se houver eclipse, em lua-eclipse os dados em negrito.
           let signName = extractSign(currentEvent.info);
-          // Verifica se há indicador de eclipse (a presença do caractere "–")
           let dashIndex = currentEvent.info.indexOf("–");
           if (dashIndex !== -1) {
             let eclipseInfo = currentEvent.info.substring(dashIndex + 1).trim();
@@ -576,7 +575,6 @@
             document.getElementById("lua-eclipse").innerText = "";
           }
         } else {
-          // Fora do dia exato do evento, exibe somente o nome do signo.
           let signName = extractSign(currentEvent.info);
           document.getElementById("lua-sign").innerText = signName;
           document.getElementById("lua-eclipse").innerText = "";
@@ -607,6 +605,77 @@
       }
       return "";
     }
+
+    // Atualiza o módulo "Kit Planetário de hoje" com base no planeta regente.
+    function updateKitPlanetario() {
+      // Obtem o texto do elemento "dia-planetario"
+      let regenteText = document.getElementById("dia-planetario").innerText;
+      // Supondo que o formato seja "☉ Hélios/Sol", extraímos a parte após a barra
+      let parts = regenteText.split("/");
+      let planetName = parts.length > 1 ? parts[1].trim() : regenteText.trim();
+      // Caso o regente contenha apenas o nome, use-o diretamente
+      let kit = kitDetails[planetName];
+      let kitContent = "";
+      if (kit) {
+        kitContent += "<p><strong>Vela:</strong> " + kit.vela + "</p>";
+        kitContent += "<p><strong>Incenso:</strong> " + kit.incenso + "</p>";
+        kitContent += "<p><strong>Pedras:</strong> " + kit.pedras + "</p>";
+        if (kit.alternativas) {
+          kitContent += "<p><strong>Alternativas:</strong> " + kit.alternativas + "</p>";
+        }
+        kitContent += "<p><strong>Usos:</strong> " + kit.usos + "</p>";
+      } else {
+        kitContent = "<p>Sem kit definido para " + planetName + ".</p>";
+      }
+      document.getElementById("kit-content").innerHTML = kitContent;
+    }
+
+    // Objeto com os detalhes dos kits para cada planeta
+    const kitDetails = {
+      "Sol": {
+        vela: "Dourada, Amarela, Laranja",
+        incenso: "Olíbano (Frankincense), Alecrim, Canela, Girassol",
+        pedras: "Olho de Tigre, Citrino, Topázio Imperial, Âmbar, Granada",
+        usos: "Vitalidade, poder pessoal, sucesso, cura, liderança"
+      },
+      "Lua": {
+        vela: "Branca, Prata, Azul Claro",
+        incenso: "Jasmim, Sândalo Branco, Camomila, Mirra",
+        pedras: "Pedra da Lua, Selenita, Pérola, Opala Branca, Quartzo Leitoso",
+        usos: "Intuição, emoções, sonhos, proteção psíquica, fertilidade"
+      },
+      "Marte": {
+        vela: "Vermelha, Escarlate",
+        incenso: "Cravo, Gengibre, Pimenta-Do-Reino, Arruda",
+        pedras: "Jaspe Vermelho, Granada",
+        alternativas: "Rubi, Coral Vermelho, Hematita",
+        usos: "Ação, coragem, proteção, energia, combate espiritual"
+      },
+      "Mercúrio": {
+        vela: "Amarela, Laranja, Cinza",
+        incenso: "Lavanda, Hortelã, Erva-Doce, Anis",
+        pedras: "Ágata, Fluorita, Citrino, Turquesa",
+        usos: "Comunicação, raciocínio, aprendizado, escrita, comércio"
+      },
+      "Júpiter": {
+        vela: "Azul Royal, Roxa, Verde",
+        incenso: "Benjoim, Noz-Moscada, Cedro, Sálvia",
+        pedras: "Ametista, Lápis-Lazúli, Safira, Sodalita, Olho de Falcão",
+        usos: "Expansão, prosperidade, sorte, sabedoria espiritual"
+      },
+      "Vênus": {
+        vela: "Rosa, Verde, Cobre",
+        incenso: "Rosa, Patchouli, Sândalo Rosa, Baunilha",
+        pedras: "Quartzo Rosa, Esmeralda, Jade, Malaquita, Rodocrosita",
+        usos: "Amor, beleza, prazer, harmonia, arte, magnetismo pessoal"
+      },
+      "Saturno": {
+        vela: "Preta, Cinza, Azul Escuro",
+        incenso: "Mirra, Cipreste, Vetiver, Pinho",
+        pedras: "Ônix, Obsidiana, Turmalina Preta, Hematita, Safira Negra",
+        usos: "Estrutura, proteção, banimento, introspecção, disciplina"
+      }
+    };
   </script>
 </body>
 </html>
