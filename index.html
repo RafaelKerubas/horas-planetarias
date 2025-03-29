@@ -28,12 +28,23 @@
       color: #f8b400;
       margin-bottom: 10px;
     }
-    /* Molduras para os campos */
+    /* Molduras individuais */
     .planet-info {
       margin: 20px 0;
       padding: 15px;
       background: rgba(15, 52, 96, 0.8);
       border-radius: 5px;
+    }
+    /* Linha com duas colunas */
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .col {
+      flex: 1 1 48%;
+      box-sizing: border-box;
     }
     .tempo-restante, .adjacent-hours, #info-message, .day-definition {
       color: #f8b400;
@@ -63,6 +74,9 @@
       .container {
         width: 95%;
       }
+      .col {
+        flex: 1 1 100%;
+      }
     }
   </style>
 </head>
@@ -81,10 +95,19 @@
       </p>
     </div>
     
-    <!-- Moldura 2: Informações adicionais -->
-    <div class="planet-info" id="info-container">
-      <h2 id="info-title">...</h2>
-      <p id="info-message"></p>
+    <!-- Linha com duas colunas: Informações adicionais e A Lua Hoje -->
+    <div class="row">
+      <!-- Coluna 1: Informações adicionais -->
+      <div class="planet-info col" id="info-container">
+        <h2 id="info-title">...</h2>
+        <p id="info-message"></p>
+      </div>
+      <!-- Coluna 2: A Lua Hoje -->
+      <div class="planet-info col" id="lua-info-container">
+        <h2>A Lua Hoje</h2>
+        <p class="tempo-restante" id="lua-phase">Fase da Lua: --</p>
+        <p class="tempo-restante" id="lua-sign">Signo Luar: --</p>
+      </div>
     </div>
     
     <!-- Moldura 3: Hora Planetária Atual -->
@@ -94,13 +117,6 @@
       <p class="adjacent-hours">
         Hora Anterior: <span id="hora-anterior">...</span> | Próxima Hora: <span id="proxima-hora">...</span>
       </p>
-    </div>
-    
-    <!-- Moldura 4: A Lua Hoje -->
-    <div class="planet-info" id="lua-info-container">
-      <h2>A Lua Hoje</h2>
-      <p class="tempo-restante" id="lua-phase">Fase da Lua: --</p>
-      <p class="tempo-restante" id="lua-sign">Signo Luar: --</p>
     </div>
     
     <button class="button" onclick="getLocation()">Detectar Localização</button>
@@ -166,33 +182,33 @@
       "Sábado": {
         sequence: ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"],
         messages: [
-          "Magia ou talismãs para ferir seu inimigo ou enviar doenças",
-          "Pode causar um naufrágio ou prejudicar alguém",
-          "Para configurar encantamentos",
-          "Pode fazer os senhores lutarem entre si",
-          "Pode causar ódio entre um casal",
-          "Pode encontrar o tesouro",
-          "Pode falar com demônios",
-          "Para realizar a adivinhação da bacia",
-          "Para realizar a adivinhação do crânio",
-          "Pode fazer com que os povos mergulhem no mar",
-          "Pode deixar os litigantes furiosos uns com os outros",
-          "Pode causar medo e inimizade",
-          "Benéfico para descobrir segredos",
-          "Pode ver pessoas mortas",
-          "Para ter visões – Para adivinhação de água",
-          "Útil para ensinar",
-          "Hora muito maligna",
-          "Hora inútil",
-          "Para ganhar dinheiro em dados",
-          "Pode conter todas as coisas boas",
-          "Hora sem virtude",
-          "Pode causar visões",
-          "Útil para lucro",
-          "Hora de aborrecimento e inimizade"
+          "Magia ou talismãs para ferir seu inimigo ou enviar doenças",       // 1ª
+          "Pode causar um naufrágio ou prejudicar alguém",                      // 2ª
+          "Para configurar encantamentos",                                      // 3ª
+          "Pode fazer os senhores lutarem entre si",                           // 4ª
+          "Pode causar ódio entre um casal",                                    // 5ª
+          "Pode encontrar o tesouro",                                           // 6ª
+          "Pode falar com demônios",                                             // 7ª
+          "Para realizar a adivinhação da bacia",                               // 8ª
+          "Para realizar a adivinhação do crânio",                                // 9ª
+          "Pode fazer com que os povos mergulhem no mar",                        // 10ª
+          "Pode deixar os litigantes furiosos uns com os outros",                // 11ª
+          "Pode causar medo e inimizade",                                       // 12ª
+          "Benéfico para descobrir segredos",                                  // 13ª
+          "Pode ver pessoas mortas",                                            // 14ª
+          "Para ter visões – Para adivinhação de água",                           // 15ª
+          "Útil para ensinar",                                                  // 16ª
+          "Hora muito maligna",                                                 // 17ª
+          "Hora inútil",                                                        // 18ª
+          "Para ganhar dinheiro em dados",                                      // 19ª
+          "Pode conter todas as coisas boas",                                   // 20ª
+          "Hora sem virtude",                                                   // 21ª
+          "Pode causar visões",                                                 // 22ª
+          "Útil para lucro",                                                    // 23ª
+          "Hora de aborrecimento e inimizade"                                   // 24ª
         ]
       }
-      // Outras configurações para os demais dias podem ser adicionadas conforme necessário
+      // Outras configurações podem ser adicionadas conforme necessário
     };
   
     function getLocation() {
@@ -402,7 +418,6 @@
   
     // Atualiza informações lunares usando SunCalc com os valores reais de latitude e longitude.
     function updateMoonInfo(lat, lon) {
-      // Calcula a fase lunar para a data atual usando SunCalc
       const moonIllum = SunCalc.getMoonIllumination(new Date());
       const phase = moonIllum.phase; // valor entre 0 e 1
       let phaseName = "";
