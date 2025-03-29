@@ -1,3 +1,11 @@
+function showPosition(position) {
+  document.getElementById("location-status").innerText = "Localização detectada.";
+  let lat = position.coords.latitude;
+  let lon = position.coords.longitude;
+  getSunTimes(lat, lon);
+  getCityName(lat, lon);
+  updateMoonInfo(lat, lon); // Atualiza a moldura lunar
+}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
