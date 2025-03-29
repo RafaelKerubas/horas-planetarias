@@ -5,59 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Horas Planetárias</title>
     <style>
-            body {
-        font-family: 'Arial', sans-serif;
-        text-align: center;
-        background: linear-gradient(to bottom, #1a1a2e, #0f3460);
-        color: #fff;
-        margin: 0;
-        padding: 20px;
-    }
-
-    .container {
-        max-width: 90%;
-        width: 600px;
-        margin: auto;
-        padding: 20px;
-        background: rgba(22, 33, 62, 0.9);
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
-    }
-
-    h1, h2 {
-        color: #f8b400;
-        margin-bottom: 10px;
-    }
-
-    .planet-info {
-        margin: 20px 0;
-        padding: 15px;
-        background: rgba(15, 52, 96, 0.8);
-        border-radius: 5px;
-        transition: all 0.3s ease-in-out;
-    }
-
-    .button {
-        padding: 12px 24px;
-        font-size: 16px;
-        font-weight: bold;
-        background-color: #f8b400;
-        color: #1a1a2e;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background 0.3s ease-in-out;
-    }
-
-    .button:hover {
-        background-color: #ffcc29;
-    }
-
-    @media (max-width: 768px) {
-        .container {
-            width: 95%;
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom, #1a1a2e, #0f3460);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
         }
-    }
+
+        .container {
+            max-width: 90%;
+            width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: rgba(22, 33, 62, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        h1, h2 {
+            color: #f8b400;
+            margin-bottom: 10px;
+        }
+
+        .planet-info {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(15, 52, 96, 0.8);
+            border-radius: 5px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #f8b400;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease-in-out;
+        }
+
+        .button:hover {
+            background-color: #ffcc29;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -68,13 +68,14 @@
         <div class="planet-info">
             <h2>Dia Planetário: <span id="dia-planetario">...</span></h2>
             <h2>Hora Planetária Atual: <span id="planet-icon">🔆</span> <span id="hora-planetaria">...</span></h2>
-                    </div>
+        </div>
         
         <button class="button" onclick="getLocation()">Detectar Localização</button>
         <p id="location-status">Localização não detectada.</p>
         <p id="city-name">Cidade não detectada.</p>
         <p>Nascer do Sol: <span id="sunrise-time">--:--</span></p>
         <p>Pôr do Sol: <span id="sunset-time">--:--</span></p>
+        <p>Tempo Restante: <span id="cronometro">--:--:--</span></p>
     </div>
     
     <script>
@@ -115,66 +116,97 @@
         }
     
         function getSunTimes(lat, lon) {
-    let url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=sunrise,sunset&timezone=auto`;
+            let url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=sunrise,sunset&timezone=auto`;
 
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            let sunrise = data.daily.sunrise[0];
-            let sunset = data.daily.sunset[0];
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    let sunrise = data.daily.sunrise[0];
+                    let sunset = data.daily.sunset[0];
 
-            // Formata para exibir corretamente
-            let sunriseFormatted = new Date(sunrise).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            let sunsetFormatted = new Date(sunset).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                    // Formata para exibir corretamente
+                    let sunriseFormatted = new Date(sunrise).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                    let sunsetFormatted = new Date(sunset).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-            document.getElementById("sunrise-time").innerText = sunriseFormatted;
-            document.getElementById("sunset-time").innerText = sunsetFormatted;
+                    document.getElementById("sunrise-time").innerText = sunriseFormatted;
+                    document.getElementById("sunset-time").innerText = sunsetFormatted;
 
-            calculatePlanetaryHours(new Date(sunrise), new Date(sunset));
-        })
-        .catch(error => {
-            console.error("Erro ao obter horários do sol:", error);
-            document.getElementById("sunrise-time").innerText = "Erro";
-            document.getElementById("sunset-time").innerText = "Erro";
-        });
-}
+                    calculatePlanetaryHours(new Date(sunrise), new Date(sunset));
+                })
+                .catch(error => {
+                    console.error("Erro ao obter horários do sol:", error);
+                    document.getElementById("sunrise-time").innerText = "Erro";
+                    document.getElementById("sunset-time").innerText = "Erro";
+                });
+        }
     
         function calculatePlanetaryHours(sunrise, sunset) {
-    let planets = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
-    let today = new Date();
-    let weekday = today.getDay();
-    let planetaryDay = ["☉ Sol", "☽ Lua", "♂ Marte", "☿ Mercúrio", "♃ Júpiter", "♀ Vênus", "♄ Saturno"][weekday];
+            let planets = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
+            let today = new Date();
+            let weekday = today.getDay();
+            let planetaryDay = ["☉ Sol", "☽ Lua", "♂ Marte", "☿ Mercúrio", "♃ Júpiter", "♀ Vênus", "♄ Saturno"][weekday];
 
-    document.getElementById("dia-planetario").innerText = planetaryDay;
+            document.getElementById("dia-planetario").innerText = planetaryDay;
 
-    let dayHours = [];
-    let nightHours = [];
+            let dayHours = [];
+            let nightHours = [];
 
-    let dayDuration = (sunset - sunrise) / 12;
-    let nightDuration = ((24 * 60 * 60 * 1000) - (sunset - sunrise)) / 12;
+            let dayDuration = (sunset - sunrise) / 12;
+            let nightDuration = ((24 * 60 * 60 * 1000) - (sunset - sunrise)) / 12;
 
-    for (let i = 0; i < 12; i++) {
-        dayHours.push(new Date(sunrise.getTime() + i * dayDuration));
-        nightHours.push(new Date(sunset.getTime() + i * nightDuration));
-    }
+            for (let i = 0; i < 12; i++) {
+                dayHours.push(new Date(sunrise.getTime() + i * dayDuration));
+                nightHours.push(new Date(sunset.getTime() + i * nightDuration));
+            }
 
-    let allHours = [...dayHours, ...nightHours];
-    let firstPlanetIndex = planets.indexOf(planetaryDay);
-    let planetaryHours = [];
+            let allHours = [...dayHours, ...nightHours];
+            let firstPlanetIndex = planets.indexOf(planetaryDay);
+            let planetaryHours = [];
 
-    for (let i = 0; i < allHours.length; i++) {
-        planetaryHours.push(planets[(firstPlanetIndex + i) % 7]);
-    }
+            for (let i = 0; i < allHours.length; i++) {
+                planetaryHours.push(planets[(firstPlanetIndex + i) % 7]);
+            }
 
-    let currentHour = new Date();
-    for (let i = 0; i < allHours.length - 1; i++) {
-        if (currentHour >= allHours[i] && currentHour < allHours[i + 1]) {
-            let planetData = planetaryHours[i].split(" ");
-            document.getElementById("planet-icon").innerText = planetData[0]; // Ícone
-            document.getElementById("hora-planetaria").innerText = planetData[1]; // Nome do Planeta
-            break;
+            let currentHour = new Date();
+            for (let i = 0; i < allHours.length - 1; i++) {
+                if (currentHour >= allHours[i] && currentHour < allHours[i + 1]) {
+                    let planetData = planetaryHours[i].split(" ");
+                    document.getElementById("planet-icon").innerText = planetData[0]; // Ícone
+                    document.getElementById("hora-planetaria").innerText = planetData[1]; // Nome do Planeta
+                    
+                    // Inicia o cronômetro com o tempo restante para o final da hora planetária
+                    startCronometro(allHours[i + 1]);
+                    break;
+                }
+            }
         }
-    }
+        
+        // Função para iniciar e atualizar o cronômetro
+        function startCronometro(endTime) {
+            // Limpa o intervalo anterior, se existir
+            if (window.cronometroInterval) clearInterval(window.cronometroInterval);
+            
+            window.cronometroInterval = setInterval(() => {
+                const now = new Date();
+                const diff = endTime - now;
+                
+                if (diff <= 0) {
+                    document.getElementById("cronometro").innerText = "00:00:00";
+                    clearInterval(window.cronometroInterval);
+                } else {
+                    const totalSeconds = Math.floor(diff / 1000);
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    const seconds = totalSeconds % 60;
+                    
+                    const formatted = 
+                        (hours < 10 ? "0" + hours : hours) + ":" +
+                        (minutes < 10 ? "0" + minutes : minutes) + ":" +
+                        (seconds < 10 ? "0" + seconds : seconds);
+                        
+                    document.getElementById("cronometro").innerText = formatted;
+                }
+            }, 1000);
         }
     </script>
     
