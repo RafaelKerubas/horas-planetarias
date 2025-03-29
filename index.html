@@ -26,7 +26,7 @@
       color: #f8b400;
       margin-bottom: 10px;
     }
-    /* Usada para ambas as molduras */
+    /* Molduras para os campos */
     .planet-info {
       margin: 20px 0;
       padding: 15px;
@@ -50,6 +50,10 @@
     }
     .button:hover {
       background-color: #ffcc29;
+    }
+    /* Cidade e estado em negrito */
+    #city-name {
+      font-weight: bold;
     }
     @media (max-width: 768px) {
       .container {
@@ -80,10 +84,14 @@
     </div>
     
     <button class="button" onclick="getLocation()">Detectar Localização</button>
+    <!-- Localização sem latitude/longitude -->
     <p id="location-status">Localização não detectada.</p>
+    <!-- Cidade e estado em negrito -->
     <p id="city-name">Cidade não detectada.</p>
-    <p>Nascer do Sol: <span id="sunrise-time">--:--</span></p>
-    <p>Pôr do Sol: <span id="sunset-time">--:--</span></p>
+    <!-- Nascer e pôr do sol na mesma linha -->
+    <p id="sunrise-sunset">
+      Nascer do Sol: <span id="sunrise-time">--:--</span> | Pôr do Sol: <span id="sunset-time">--:--</span>
+    </p>
   </div>
   
   <script>
@@ -103,9 +111,10 @@
     }
   
     function showPosition(position) {
+      // Oculta latitude e longitude, exibe apenas "Localização detectada."
+      document.getElementById("location-status").innerText = "Localização detectada.";
       let lat = position.coords.latitude;
       let lon = position.coords.longitude;
-      document.getElementById("location-status").innerText = `Latitude: ${lat}, Longitude: ${lon}`;
       getSunTimes(lat, lon);
       getCityName(lat, lon);
     }
