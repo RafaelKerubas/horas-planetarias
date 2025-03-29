@@ -26,6 +26,7 @@
       color: #f8b400;
       margin-bottom: 10px;
     }
+    /* Usada para ambas as molduras */
     .planet-info {
       margin: 20px 0;
       padding: 15px;
@@ -62,12 +63,15 @@
     <h1>Horas Planetárias</h1>
     <p>Confira o dia e a hora planetária atual baseado na sua localização.</p>
     
-    <div class="planet-info">
+    <!-- Moldura para o Dia Planetário -->
+    <div class="planet-info" id="dia-planetario-container">
       <h2>Dia Planetário: <span id="dia-planetario">...</span></h2>
-      <!-- Marcador de tempo decorrido (após nascer ou após pôr) -->
       <p class="tempo-restante" id="tempo-passado">O Sol nasceu há: --:--:--</p>
-      <!-- Novo marcador: tempo restante para o pôr ou para o nascer, conforme a fase -->
       <p class="tempo-restante" id="tempo-ate-pôr">O Sol se põe em: --:--:--</p>
+    </div>
+    
+    <!-- Moldura para a Hora Planetária -->
+    <div class="planet-info" id="hora-planetaria-container">
       <h2>Hora Planetária Atual: <span id="planet-icon">🔆</span> <span id="hora-planetaria">...</span></h2>
       <p class="tempo-restante">Tempo Restante: <span id="cronometro">--:--:--</span></p>
       <p class="adjacent-hours">
@@ -141,7 +145,8 @@
           document.getElementById("sunset-time").innerText = sunsetFormatted;
   
           calculatePlanetaryHours(sunrise, sunset, nextSunrise);
-          // Inicia o marcador de tempo decorrido (ou tempo desde o pôr) e o de tempo até o próximo evento
+          // Inicia os marcadores de tempo:
+          // Tempo decorrido (ou desde o pôr) e tempo até o próximo evento
           startElapsedTimeTimer(sunrise, sunset);
           startTimeUntilSunset(sunset, nextSunrise);
         })
@@ -255,8 +260,8 @@
     }
   
     // Atualiza o marcador de tempo decorrido:
-    // Se o Sol ainda não se pôs (now < sunset): mostra "O Sol nasceu há:" e calcula diff = now - sunrise.
-    // Se já passou do pôr (now >= sunset): mostra "O Sol se pôs há:" e calcula diff = now - sunset.
+    // Se o Sol ainda não se pôs (now < sunset): mostra "O Sol nasceu há:" com diff = now - sunrise.
+    // Se já passou do pôr (now >= sunset): mostra "O Sol se pôs há:" com diff = now - sunset.
     function startElapsedTimeTimer(sunrise, sunset) {
       if (window.elapsedTimeInterval) clearInterval(window.elapsedTimeInterval);
   
