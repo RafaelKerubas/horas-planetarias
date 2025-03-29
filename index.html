@@ -147,7 +147,7 @@
       let planets = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
       let today = new Date();
       let weekday = today.getDay();
-      // Define o dia planetário conforme uma ordem específica
+      // Define o dia planetário conforme a ordem desejada
       let planetaryDay = ["☉ Sol", "☽ Lua", "♂ Marte", "☿ Mercúrio", "♃ Júpiter", "♀ Vênus", "♄ Saturno"][weekday];
   
       document.getElementById("dia-planetario").innerText = planetaryDay;
@@ -181,11 +181,11 @@
   
           let previousIndex = (i - 1 + planetaryHours.length) % planetaryHours.length;
           let previousData = planetaryHours[previousIndex].split(" ");
-          document.getElementById("hora-anterior").innerText = previousData[0];
+          document.getElementById("hora-anterior").innerText = previousData[0] + " " + previousData[1];
   
           let nextIndex = (i + 1) % planetaryHours.length;
           let nextData = planetaryHours[nextIndex].split(" ");
-          document.getElementById("proxima-hora").innerText = nextData[0];
+          document.getElementById("proxima-hora").innerText = nextData[0] + " " + nextData[1];
   
           startCronometro(allHours[i + 1]);
           found = true;
@@ -200,10 +200,10 @@
           document.getElementById("hora-planetaria").innerText = currentData[1];
   
           let previousData = planetaryHours[planetaryHours.length - 1].split(" ");
-          document.getElementById("hora-anterior").innerText = previousData[0];
+          document.getElementById("hora-anterior").innerText = previousData[0] + " " + previousData[1];
   
           let nextData = planetaryHours[1].split(" ");
-          document.getElementById("proxima-hora").innerText = nextData[0];
+          document.getElementById("proxima-hora").innerText = nextData[0] + " " + nextData[1];
   
           startCronometro(allHours[0]);
         }
@@ -215,10 +215,10 @@
           document.getElementById("hora-planetaria").innerText = currentData[1];
   
           let previousData = planetaryHours[planetaryHours.length - 1].split(" ");
-          document.getElementById("hora-anterior").innerText = previousData[0];
+          document.getElementById("hora-anterior").innerText = previousData[0] + " " + previousData[1];
   
           let nextData = planetaryHours[1].split(" ");
-          document.getElementById("proxima-hora").innerText = nextData[0];
+          document.getElementById("proxima-hora").innerText = nextData[0] + " " + nextData[1];
   
           startCronometro(nextInterval);
         }
