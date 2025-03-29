@@ -26,7 +26,6 @@
       color: #f8b400;
       margin-bottom: 10px;
     }
-    /* Molduras para os campos */
     .planet-info {
       margin: 20px 0;
       padding: 15px;
@@ -72,7 +71,6 @@
     <!-- Moldura 1: Planeta Regente -->
     <div class="planet-info" id="dia-planetario-container">
       <h2>Planeta Regente: <span id="dia-planetario">...</span></h2>
-      <!-- Day-definition logo abaixo do título -->
       <p class="day-definition" id="day-definition">( )</p>
       <p class="tempo-restante" id="tempo-timers">
         <span id="tempo-passado">O Sol nasceu há: --:--:--</span> | 
@@ -111,7 +109,7 @@
   </div>
   
   <script>
-    // Declaração das configurações
+    // Configurações gerais
     const firstHourMapping = [
       "☉ Hélios/Sol",
       "☽ Selene/Lua",
@@ -132,7 +130,6 @@
       "Sexta-feira": "Harmonia, prazer e beleza em destaque. Ótima para encantamentos voltados ao amor, à arte, à autoestima e à atração.",
       "Sábado": "Estrutura, disciplina e introspecção. Propício para banimentos, encerramentos de ciclos, proteção e fortalecimento espiritual."
     };
-    // Configurações específicas (exemplo: Domingo e Sábado)
     const dayConfigurations = {
       "Domingo": {
         sequence: ["☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua", "♄ Saturno", "♃ Júpiter", "♂ Marte"],
@@ -239,16 +236,13 @@
           let sunrise = new Date(data.daily.sunrise[0]);
           let sunset = new Date(data.daily.sunset[0]);
           let nextSunrise = new Date(sunrise.getTime() + 24 * 60 * 60 * 1000);
-  
           let sunriseFormatted = sunrise.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
           let sunsetFormatted = sunset.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
           document.getElementById("sunrise-time").innerText = sunriseFormatted;
           document.getElementById("sunset-time").innerText = sunsetFormatted;
-  
           window.sunrise = sunrise;
           window.sunset = sunset;
           window.nextSunrise = nextSunrise;
-  
           calculatePlanetaryHours(sunrise, sunset, nextSunrise);
           startElapsedTimeTimer(sunrise, sunset);
           startTimeUntilSunset(sunset, nextSunrise);
@@ -274,10 +268,8 @@
       } else {
         startDayIndex = today.getDay();
       }
-  
       document.getElementById("dia-planetario").innerText = firstHourMapping[startDayIndex];
       document.getElementById("day-definition").innerText = dayDefinitions[dayNames[startDayIndex]];
-  
       let config = dayConfigurations[dayNames[startDayIndex]];
       let planetaryHours = [];
       if (config && config.sequence) {
@@ -292,7 +284,6 @@
           planetaryHours.push(chaldeanOrder[(firstHourIndex + i) % 7]);
         }
       }
-  
       let dayDuration = (sunset - sunrise) / 12;
       let nightDuration = (nextSunrise - sunset) / 12;
       let intervalStart, intervalEnd;
@@ -316,7 +307,6 @@
         intervalStart = nextSunrise;
         intervalEnd = new Date(nextSunrise.getTime() + dayDuration);
       }
-  
       let currentPlanet = planetaryHours[currentHourIndex - 1];
       document.getElementById("planet-icon").innerText = currentPlanet;
       let previousPlanet = planetaryHours[(currentHourIndex - 2 + 24) % 24];
@@ -407,10 +397,11 @@
       }, 1000);
     }
   
-    // Função para atualizar informações lunares usando Open‑Meteo Astronomy com data
+    // Atualiza as informações lunares usando Open-Meteo Astronomy
     function updateMoonInfo(lat, lon) {
-      const date = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-      const url = `https://api.open-meteo.com/v1/astronomy?latitude=${lat}&longitude=${lon}&date=${date}&timezone=auto`;
+      const date = new Date().toISOString().split("T")[0];
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // fuso horário do usuário
+      const url = `https://api.open-meteo.com/v1/astronomy?latitude=${lat}&longitude=${lon}&date=${date}&timezone=${timezone}`;
       fetch(url)
         .then(response => response.json())
         .then(data => {
