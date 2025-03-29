@@ -90,20 +90,19 @@
     <!-- Terceira moldura para informações adicionais -->
     <div class="planet-info" id="info-container">
       <h2 id="info-title">...</h2>
-      <!-- Outras informações poderão ser inseridas aqui futuramente -->
+      <p id="info-message"></p>
     </div>
     
     <button class="button" onclick="getLocation()">Detectar Localização</button>
     <p id="location-status">Localização não detectada.</p>
     <p id="city-name">Cidade não detectada.</p>
-    <!-- Nascer e pôr do sol na mesma linha -->
     <p id="sunrise-sunset">
       Nascer do Sol: <span id="sunrise-time">--:--</span> | Pôr do Sol: <span id="sunset-time">--:--</span>
     </p>
   </div>
   
   <script>
-    // Novo mapeamento para o Dia Planetário: Ícone e nome do deus
+    // Novo mapeamento para o Dia Planetário com deuses
     const firstHourMapping = [
       "♄ Cronos/Saturno",
       "☉ Hélios/Sol",
@@ -115,8 +114,35 @@
     ];
     // Ordem caldeia fixa (do mais lento para o mais rápido)
     const chaldeanOrder = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
-    // Nomes dos dias da semana em português
+    // Nomes dos dias da semana
     const dayNames = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+    // Mensagens para cada hora se for sábado (1ª a 24ª)
+    const saturdayMessages = [
+      "Magia ou talismãs para ferir seu inimigo ou enviar doenças",
+      "Pode causar um naufrágio ou prejudicar alguém",
+      "Para configurar encantamentos",
+      "Pode fazer os senhores lutarem entre si",
+      "Pode causar ódio entre um casal",
+      "Pode encontrar o tesouro",
+      "Pode falar com demônios",
+      "Para realizar a adivinhação da bacia",
+      "Para realizar a adivinhação do crânio",
+      "Pode fazer com que os povos mergulhem no mar",
+      "Pode deixar os litigantes furiosos uns com os outros",
+      "Pode causar medo e inimizade",
+      "Benéfico para descobrir segredos",
+      "Pode ver pessoas mortas",
+      "Para ter visões, adivinhação de água",
+      "Útil para ensinar",
+      "hora muito maligna",
+      "hora inútil",
+      "Para ganhar dinheiro em dados",
+      "Pode conter todas as coisas boas",
+      "Hora sem virtude",
+      "Pode causar visões",
+      "Útil para lucro",
+      "Hora de aborrecimento e inimizade"
+    ];
   
     function getLocation() {
       if (navigator.geolocation) {
@@ -194,10 +220,8 @@
         startDayIndex = today.getDay();
       }
   
-      // Exibe o Dia Planetário com o mapeamento dos deuses
       document.getElementById("dia-planetario").innerText = firstHourMapping[startDayIndex];
   
-      // Para gerar a sequência das horas planetárias, usamos o ícone para encontrar o índice na ordem caldeia
       let firstHourPlanet = firstHourMapping[startDayIndex];
       let icon = firstHourPlanet.charAt(0);
       let firstHourIndex = chaldeanOrder.findIndex(el => el.startsWith(icon));
@@ -233,13 +257,14 @@
         intervalEnd = new Date(nextSunrise.getTime() + dayDuration);
       }
   
-      // Atualiza a moldura da Hora Planetária
       let currentPlanet = planetaryHours[currentHourIndex - 1];
       let currentParts = currentPlanet.split(" ");
       document.getElementById("planet-icon").innerText = currentParts[0];
       document.getElementById("hora-planetaria").innerText = currentParts.slice(1).join(" ");
+  
       let previousPlanet = planetaryHours[(currentHourIndex - 2 + 24) % 24];
       document.getElementById("hora-anterior").innerText = previousPlanet;
+  
       let nextPlanet = planetaryHours[(currentHourIndex) % 24];
       document.getElementById("proxima-hora").innerText = nextPlanet;
   
@@ -247,8 +272,15 @@
   
       // Atualiza a terceira moldura com o título "Dia da Semana - (ordinal) Hora"
       let dayTitle = dayNames[startDayIndex];
-      let ordinal = currentHourIndex + "ª"; 
+      let ordinal = currentHourIndex + "ª";
       document.getElementById("info-title").innerText = dayTitle + " - " + ordinal + " Hora";
+  
+      // Se for sábado (índice 6), exibe a mensagem definida para aquela hora
+      if (startDayIndex === 6) {
+        document.getElementById("info-message").innerText = saturdayMessages[currentHourIndex - 1];
+      } else {
+        document.getElementById("info-message").innerText = "";
+      }
     }
   
     function startCronometro(endTime) {
@@ -264,7 +296,7 @@
           const hours = Math.floor(totalSeconds / 3600);
           const minutes = Math.floor((totalSeconds % 3600) / 60);
           const seconds = totalSeconds % 60;
-          const formatted = 
+          const formatted =
             (hours < 10 ? "0" + hours : hours) + ":" +
             (minutes < 10 ? "0" + minutes : minutes) + ":" +
             (seconds < 10 ? "0" + seconds : seconds);
@@ -290,7 +322,7 @@
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
-        const formatted = 
+        const formatted =
           (hours < 10 ? "0" + hours : hours) + ":" +
           (minutes < 10 ? "0" + minutes : minutes) + ":" +
           (seconds < 10 ? "0" + seconds : seconds);
@@ -315,7 +347,7 @@
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
-        const formatted = 
+        const formatted =
           (hours < 10 ? "0" + hours : hours) + ":" +
           (minutes < 10 ? "0" + minutes : minutes) + ":" +
           (seconds < 10 ? "0" + seconds : seconds);
