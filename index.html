@@ -26,7 +26,6 @@
       color: #f8b400;
       margin-bottom: 10px;
     }
-    /* Molduras para os campos */
     .planet-info {
       margin: 20px 0;
       padding: 15px;
@@ -72,7 +71,6 @@
     <!-- Moldura 1: Planeta Regente -->
     <div class="planet-info" id="dia-planetario-container">
       <h2>Planeta Regente: <span id="dia-planetario">...</span></h2>
-      <!-- Day-definition logo abaixo do título -->
       <p class="day-definition" id="day-definition">( )</p>
       <p class="tempo-restante" id="tempo-timers">
         <span id="tempo-passado">O Sol nasceu há: --:--:--</span> | 
@@ -143,7 +141,7 @@
           "Pode impedir um encontro com um senhor",
           "Pode comparecer perante um senhor",
           "Fazer nada",
-          "Para qualquer coisa sobre senhores",
+          "Para qualquer coisa sobre senores",
           "Para qualquer coisa sobre amor",
           "Pode escrever uma petição",
           "Pode fazer um discurso",
@@ -208,7 +206,7 @@
       let lon = position.coords.longitude;
       getSunTimes(lat, lon);
       getCityName(lat, lon);
-      updateMoonInfo(lat, lon);
+      updateMoonInfo(lat, lon); // Agora usando os valores reais de latitude e longitude
     }
   
     function getCityName(lat, lon) {
@@ -399,11 +397,11 @@
       }, 1000);
     }
   
-    // Atualiza informações lunares usando Open-Meteo Astronomy com data.
-    // Como a fase da lua é um evento global, usamos lat=0 e lon=0.
+    // Atualiza informações lunares usando o endpoint Astronomy do Open‑Meteo com data.
+    // Agora, usamos os valores de latitude e longitude do usuário.
     function updateMoonInfo(lat, lon) {
       const date = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-      const url = `https://api.open-meteo.com/v1/astronomy?latitude=0&longitude=0&date=${date}&timezone=UTC`;
+      const url = `https://api.open-meteo.com/v1/astronomy?latitude=${lat}&longitude=${lon}&date=${date}&timezone=auto`;
       fetch(url)
         .then(response => response.json())
         .then(data => {
