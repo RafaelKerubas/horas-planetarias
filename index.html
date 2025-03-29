@@ -64,8 +64,10 @@
     
     <div class="planet-info">
       <h2>Dia Planetário: <span id="dia-planetario">...</span></h2>
-      <!-- Novo marcador: Tempo Decorrido desde o nascer do sol -->
-      <p class="tempo-restante" id="tempo-passado">Sol nasceu há: --:--:--</p>
+      <!-- Marcador de tempo decorrido desde o nascer do sol -->
+      <p class="tempo-restante" id="tempo-passado">O Sol nasceu há --:--:--</p>
+      <!-- Novo marcador: tempo restante para o pôr do sol -->
+      <p class="tempo-restante" id="tempo-ate-pôr">O Sol se põe em --:--:--</p>
       <h2>Hora Planetária Atual: <span id="planet-icon">🔆</span> <span id="hora-planetaria">...</span></h2>
       <p class="tempo-restante">Tempo Restante: <span id="cronometro">--:--:--</span></p>
       <p class="adjacent-hours">
@@ -140,6 +142,8 @@
           calculatePlanetaryHours(sunrise, sunset, nextSunrise);
           // Inicia o marcador de tempo decorrido desde o nascer do sol
           startElapsedTimeTimer(sunrise);
+          // Inicia o cronômetro para o pôr do sol
+          startTimeUntilSunset(sunset);
         })
         .catch(error => {
           console.error("Erro ao obter horários do sol:", error);
@@ -226,7 +230,6 @@
       startCronometro(intervalEnd);
     }
   
-    // Função para iniciar e atualizar o cronômetro de tempo restante da hora atual
     function startCronometro(endTime) {
       if (window.cronometroInterval) clearInterval(window.cronometroInterval);
   
@@ -251,7 +254,6 @@
       }, 1000);
     }
   
-    // Função para iniciar e atualizar o marcador de tempo decorrido desde o nascer do sol
     function startElapsedTimeTimer(sunrise) {
       if (window.elapsedTimeInterval) clearInterval(window.elapsedTimeInterval);
   
@@ -271,7 +273,29 @@
           (minutes < 10 ? "0" + minutes : minutes) + ":" +
           (seconds < 10 ? "0" + seconds : seconds);
   
-        document.getElementById("tempo-passado").innerText = "Tempo Decorrido: " + formatted;
+        document.getElementById("tempo-passado").innerText = "O Sol nasceu há " + formatted;
+      }, 1000);
+    }
+  
+    function startTimeUntilSunset(sunset) {
+      if (window.sunsetInterval) clearInterval(window.sunsetInterval);
+  
+      window.sunsetInterval = setInterval(() => {
+        let now = new Date();
+        let diff = sunset - now;
+        if (diff < 0) diff = 0; // se já passou, mostra zero
+  
+        const totalSeconds = Math.floor(diff / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+  
+        const formatted =
+          (hours < 10 ? "0" + hours : hours) + ":" +
+          (minutes < 10 ? "0" + minutes : minutes) + ":" +
+          (seconds < 10 ? "0" + seconds : seconds);
+  
+        document.getElementById("tempo-ate-pôr").innerText = "O Sol se põe em " + formatted;
       }, 1000);
     }
   </script>
