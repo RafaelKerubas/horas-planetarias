@@ -65,9 +65,9 @@
     <div class="planet-info">
       <h2>Dia Planetário: <span id="dia-planetario">...</span></h2>
       <!-- Marcador de tempo decorrido desde o nascer do sol -->
-      <p class="tempo-restante" id="tempo-passado">O Sol nasceu há --:--:--</p>
+      <p class="tempo-restante" id="tempo-passado">O Sol nasceu há: --:--:--</p>
       <!-- Novo marcador: tempo restante para o pôr do sol -->
-      <p class="tempo-restante" id="tempo-ate-pôr">O Sol se põe em --:--:--</p>
+      <p class="tempo-restante" id="tempo-ate-pôr">O Sol se põe em: --:--:--</p>
       <h2>Hora Planetária Atual: <span id="planet-icon">🔆</span> <span id="hora-planetaria">...</span></h2>
       <p class="tempo-restante">Tempo Restante: <span id="cronometro">--:--:--</span></p>
       <p class="adjacent-hours">
@@ -273,7 +273,7 @@
           (minutes < 10 ? "0" + minutes : minutes) + ":" +
           (seconds < 10 ? "0" + seconds : seconds);
   
-        document.getElementById("tempo-passado").innerText = "O Sol nasceu há " + formatted;
+        document.getElementById("tempo-passado").innerText = "O Sol nasceu há: " + formatted;
       }, 1000);
     }
   
@@ -283,7 +283,7 @@
       window.sunsetInterval = setInterval(() => {
         let now = new Date();
         let diff = sunset - now;
-        if (diff < 0) diff = 0; // se já passou, mostra zero
+        if (diff < 0) diff = 0;
   
         const totalSeconds = Math.floor(diff / 1000);
         const hours = Math.floor(totalSeconds / 3600);
@@ -295,7 +295,7 @@
           (minutes < 10 ? "0" + minutes : minutes) + ":" +
           (seconds < 10 ? "0" + seconds : seconds);
   
-        document.getElementById("tempo-ate-pôr").innerText = "O Sol se põe em " + formatted;
+        document.getElementById("tempo-ate-pôr").innerText = "O Sol se põe em: " + formatted;
       }, 1000);
     }
   </script>
