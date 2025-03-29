@@ -51,6 +51,10 @@
     .button:hover {
       background-color: #ffcc29;
     }
+    /* Oculta a mensagem de status de localização */
+    #location-status {
+      display: none;
+    }
     /* Cidade e estado em negrito */
     #city-name {
       font-weight: bold;
@@ -84,7 +88,7 @@
     </div>
     
     <button class="button" onclick="getLocation()">Detectar Localização</button>
-    <!-- Localização sem latitude/longitude -->
+    <!-- Elemento de status oculto -->
     <p id="location-status">Localização não detectada.</p>
     <!-- Cidade e estado em negrito -->
     <p id="city-name">Cidade não detectada.</p>
@@ -111,7 +115,7 @@
     }
   
     function showPosition(position) {
-      // Oculta latitude e longitude, exibe apenas "Localização detectada."
+      // Oculta os dados de latitude e longitude; exibe apenas "Localização detectada."
       document.getElementById("location-status").innerText = "Localização detectada.";
       let lat = position.coords.latitude;
       let lon = position.coords.longitude;
@@ -155,7 +159,6 @@
   
           calculatePlanetaryHours(sunrise, sunset, nextSunrise);
           // Inicia os marcadores de tempo:
-          // Tempo decorrido (ou desde o pôr) e tempo até o próximo evento
           startElapsedTimeTimer(sunrise, sunset);
           startTimeUntilSunset(sunset, nextSunrise);
         })
