@@ -88,22 +88,25 @@
     </div>
     
     <button class="button" onclick="getLocation()">Detectar Localização</button>
-    <!-- Elemento de status oculto -->
     <p id="location-status">Localização não detectada.</p>
-    <!-- Cidade e estado em negrito -->
     <p id="city-name">Cidade não detectada.</p>
-    <!-- Nascer e pôr do sol na mesma linha -->
     <p id="sunrise-sunset">
       Nascer do Sol: <span id="sunrise-time">--:--</span> | Pôr do Sol: <span id="sunset-time">--:--</span>
     </p>
   </div>
   
   <script>
-    // Mapeamento da primeira hora do dia conforme o dia da semana:
-    // Domingo: "☉ Sol", Segunda: "☽ Lua", Terça: "♂ Marte", Quarta: "☿ Mercúrio",
-    // Quinta: "♃ Júpiter", Sexta: "♀ Vênus", Sábado: "♄ Saturno"
-    const firstHourMapping = ["☉ Sol", "☽ Lua", "♂ Marte", "☿ Mercúrio", "♃ Júpiter", "♀ Vênus", "♄ Saturno"];
-    // Ordem caldeia fixa (do mais lento para o mais rápido)
+    // Novo mapeamento para o Dia Planetário: Ícone e nome do deus
+    const firstHourMapping = [
+      "♄ Cronos/Saturno",
+      "☉ Hélios/Sol",
+      "☽ Selene/Lua",
+      "♂ Ares/Marte",
+      "☿ Hermes/Mercúrio",
+      "♃ Zeus/Júpiter",
+      "♀ Afrodite/Vênus"
+    ];
+    // Ordem caldeia fixa (do mais lento para o mais rápido) permanece inalterada
     const chaldeanOrder = ["♄ Saturno", "♃ Júpiter", "♂ Marte", "☉ Sol", "♀ Vênus", "☿ Mercúrio", "☽ Lua"];
   
     function getLocation() {
@@ -186,157 +189,10 @@
         startDayIndex = today.getDay();
       }
   
-      // Exibe o Dia Planetário conforme o mapeamento da primeira hora
+      // Exibe o Dia Planetário conforme o mapeamento da primeira hora (agora com deuses)
       document.getElementById("dia-planetario").innerText = firstHourMapping[startDayIndex];
   
       // Define o planeta que rege a primeira hora do dia a partir do mapeamento
       let firstHourPlanet = firstHourMapping[startDayIndex];
       // Procura esse planeta na ordem caldeia para determinar o ponto de partida
-      let firstHourIndex = chaldeanOrder.indexOf(firstHourPlanet);
-      // Gera a sequência de 24 horas planetárias (usando a ordem caldeia)
-      let planetaryHours = [];
-      for (let i = 0; i < 24; i++) {
-        planetaryHours.push(chaldeanOrder[(firstHourIndex + i) % 7]);
-      }
-  
-      // Divide o período em 12 horas diurnas e 12 noturnas
-      let dayDuration = (sunset - sunrise) / 12;
-      let nightDuration = (nextSunrise - sunset) / 12;
-  
-      let intervalStart, intervalEnd;
-      let currentHourIndex; // Índice 1-based (de 1 a 24)
-  
-      if (currentTime >= sunrise && currentTime < sunset) {
-        // Período diurno
-        let h = Math.floor((currentTime - sunrise) / dayDuration); // 0 a 11
-        currentHourIndex = h + 1; // 1 a 12
-        intervalStart = new Date(sunrise.getTime() + h * dayDuration);
-        intervalEnd = new Date(intervalStart.getTime() + dayDuration);
-      } else if (currentTime >= sunset && currentTime < nextSunrise) {
-        // Período noturno
-        let h = Math.floor((currentTime - sunset) / nightDuration); // 0 a 11
-        currentHourIndex = 12 + h + 1; // 13 a 24
-        intervalStart = new Date(sunset.getTime() + h * nightDuration);
-        intervalEnd = new Date(intervalStart.getTime() + nightDuration);
-      } else if (currentTime < sunrise) {
-        // Antes do nascer: última hora (24)
-        currentHourIndex = 24;
-        intervalEnd = sunrise;
-        intervalStart = new Date(sunrise.getTime() - nightDuration);
-      } else {
-        // Caso incomum: após o próximo nascer
-        currentHourIndex = 1;
-        intervalStart = nextSunrise;
-        intervalEnd = new Date(nextSunrise.getTime() + dayDuration);
-      }
-  
-      // Atualiza os elementos da interface usando o índice 1-based:
-      // Para acessar o array (0-indexado), usamos currentHourIndex - 1.
-      let currentPlanet = planetaryHours[currentHourIndex - 1];
-      let currentParts = currentPlanet.split(" ");
-      document.getElementById("planet-icon").innerText = currentParts[0];
-      document.getElementById("hora-planetaria").innerText = currentParts.slice(1).join(" ");
-  
-      let previousPlanet = planetaryHours[(currentHourIndex - 2 + 24) % 24];
-      document.getElementById("hora-anterior").innerText = previousPlanet;
-  
-      let nextPlanet = planetaryHours[(currentHourIndex) % 24];
-      document.getElementById("proxima-hora").innerText = nextPlanet;
-  
-      // Inicia o cronômetro para o término do intervalo da hora atual
-      startCronometro(intervalEnd);
-    }
-  
-    function startCronometro(endTime) {
-      if (window.cronometroInterval) clearInterval(window.cronometroInterval);
-  
-      window.cronometroInterval = setInterval(() => {
-        const now = new Date();
-        const diff = endTime - now;
-  
-        if (diff <= 0) {
-          document.getElementById("cronometro").innerText = "00:00:00";
-          clearInterval(window.cronometroInterval);
-        } else {
-          const totalSeconds = Math.floor(diff / 1000);
-          const hours = Math.floor(totalSeconds / 3600);
-          const minutes = Math.floor((totalSeconds % 3600) / 60);
-          const seconds = totalSeconds % 60;
-          const formatted =
-            (hours < 10 ? "0" + hours : hours) + ":" +
-            (minutes < 10 ? "0" + minutes : minutes) + ":" +
-            (seconds < 10 ? "0" + seconds : seconds);
-          document.getElementById("cronometro").innerText = formatted;
-        }
-      }, 1000);
-    }
-  
-    // Atualiza o marcador de tempo decorrido:
-    // Se o Sol ainda não se pôs (now < sunset): mostra "O Sol nasceu há:" com diff = now - sunrise.
-    // Se já passou do pôr (now >= sunset): mostra "O Sol se pôs há:" com diff = now - sunset.
-    function startElapsedTimeTimer(sunrise, sunset) {
-      if (window.elapsedTimeInterval) clearInterval(window.elapsedTimeInterval);
-  
-      window.elapsedTimeInterval = setInterval(() => {
-        let now = new Date();
-        let diff;
-        let label;
-        if (now < sunset) {
-          diff = now - sunrise;
-          label = "O Sol nasceu há: ";
-        } else {
-          diff = now - sunset;
-          label = "O Sol se pôs há: ";
-        }
-        if (diff < 0) diff = 0;
-  
-        const totalSeconds = Math.floor(diff / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-  
-        const formatted =
-          (hours < 10 ? "0" + hours : hours) + ":" +
-          (minutes < 10 ? "0" + minutes : minutes) + ":" +
-          (seconds < 10 ? "0" + seconds : seconds);
-  
-        document.getElementById("tempo-passado").innerText = label + formatted;
-      }, 1000);
-    }
-  
-    // Atualiza o marcador de tempo até o próximo evento:
-    // Se o Sol ainda não se pôs (now < sunset): mostra "O Sol se põe em:" com diff = sunset - now.
-    // Se já passou do pôr (now >= sunset): mostra "O Sol nascerá em:" com diff = nextSunrise - now.
-    function startTimeUntilSunset(sunset, nextSunrise) {
-      if (window.sunsetInterval) clearInterval(window.sunsetInterval);
-  
-      window.sunsetInterval = setInterval(() => {
-        let now = new Date();
-        let diff;
-        let label;
-        if (now < sunset) {
-          diff = sunset - now;
-          label = "O Sol se põe em: ";
-        } else {
-          diff = nextSunrise - now;
-          label = "O Sol nascerá em: ";
-        }
-        if (diff < 0) diff = 0;
-  
-        const totalSeconds = Math.floor(diff / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-  
-        const formatted =
-          (hours < 10 ? "0" + hours : hours) + ":" +
-          (minutes < 10 ? "0" + minutes : minutes) + ":" +
-          (seconds < 10 ? "0" + seconds : seconds);
-  
-        document.getElementById("tempo-ate-pôr").innerText = label + formatted;
-      }, 1000);
-    }
-  </script>
-  
-</body>
-</html>
+      let firstHourIndex = chaldeanOrder.indexOf(firstHourPlanet.split(" ")[1
